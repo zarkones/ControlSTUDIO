@@ -1,0 +1,54 @@
+{
+    "publicKey": {
+        "encodings": [
+            "hex",
+            "pem"
+        ],
+        "value": ""
+    },
+    "receive": {
+        "sleepMin": 3000,
+        "sleepMax": 3000,
+        "timeout": 10000,
+        "hosts": [
+            "http://127.0.0.1:8080"
+        ],
+        "routes": [
+            "/v1/messages",
+            "something"
+        ],
+        "headers": {
+            "Host": [
+                "example.com",
+                "something.net"
+            ],
+            "X-custom-Header": [
+                "xyz"
+            ],
+            "X-custom2": [
+                "123",
+                "345",
+                "678"
+            ],
+            "User-Agent": [
+                "totally chrome"
+            ]
+        },
+        "methods": [
+            "GET"
+        ],
+        "operations": [
+            "csv",
+            "hex"
+        ],
+        "urlParams": {
+            "xyz": [
+                "123",
+                "abc"
+            ],
+            "abc": [
+                "xyz"
+            ]
+        }
+    }
+}

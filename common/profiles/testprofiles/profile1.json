@@ -1,0 +1,53 @@
+{
+    "receive": {
+        "sleepMin": 3000,
+        "sleepMax": 3000,
+        "timeout": 10000,
+        "hosts": [
+            "http://127.0.0.1:8080"
+        ],
+        "routes": [
+            "/v1/messages",
+            "something"
+        ],
+        "headers": {
+            "Host": [
+                "example.com",
+                "something.net"
+            ],
+            "X-custom-Header": [
+                "xyz"
+            ],
+            "X-custom2": [
+                "123",
+                "345",
+                "678"
+            ]
+        },
+        "methods": [
+            "GET"
+        ],
+        "actions": [
+            "csv",
+            "hex"
+        ],
+        "payloadPosition": [
+            "body",
+            "header=X-Xyz",
+            "header=Malware-Header",
+            "urlParam=xyz",
+            "urlPath"
+        ],
+        "urlParams": {
+            "xyz": [
+                "123",
+                "abc"
+            ],
+            "abc": [
+                "xyz"
+            ]
+        },
+        "prefix": "prefix",
+        "suffix": "suffix"
+    }
+}
