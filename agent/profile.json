@@ -6,9 +6,41 @@
         ],
         "value": ""
     },
-    "receive": {
+
+    "tick": {
         "sleepMin": 3000,
-        "sleepMax": 3000,
+        "sleepMax": 3000
+    },
+
+    "outcall": {
+        "timeout": 10000,
+        "hosts": [
+            "http://127.0.0.1:8080"
+        ],
+        "routes": [
+            "/v1/messages",
+            "sending"
+        ],
+        "headers": {
+            "Host": [
+                "example.com",
+                "something.net"
+            ],
+            "User-Agent": [
+                "totally chrome"
+            ]
+        },
+         "methods": [
+            "POST",
+            "PUT"
+        ],
+        "operations": [
+            "hex",
+            "csv"
+        ]
+    },
+
+    "incall": {
         "timeout": 10000,
         "hosts": [
             "http://127.0.0.1:8080"
@@ -38,8 +70,8 @@
             "GET"
         ],
         "operations": [
-            "csv",
-            "hex"
+            "csv_d",
+            "hex_d"
         ],
         "urlParams": {
             "xyz": [
