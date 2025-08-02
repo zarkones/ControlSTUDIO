@@ -23,7 +23,7 @@ func Init(dbName string) error {
 
 	if err := db.AutoMigrate(
 		&models.Agent{},
-		&models.Profile{},
+		&models.MetaProfile{},
 	); err != nil {
 		return err
 	}
