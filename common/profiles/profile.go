@@ -11,22 +11,44 @@ import (
 )
 
 type ProfileRequest struct {
-	Timeout         int                 `json:"timeout"`
-	Hosts           []string            `json:"hosts"`
-	Routes          []string            `json:"routes"`
-	Headers         map[string][]string `json:"headers"`
-	Methods         []string            `json:"methods"`
-	Operations      []string            `json:"operations"`
-	PayloadPosition []string            `json:"payloadPosition"`
-	UrlParams       map[string][]string `json:"urlParams"`
-	Prefix          string              `json:"prefix"`
-	Suffix          string              `json:"suffix"`
+	ID        Id                  `json:"id"`
+	Payload   Payload             `json:"payload"`
+	Timeout   int                 `json:"timeout"`
+	Hosts     []string            `json:"hosts"`
+	Routes    []string            `json:"routes"`
+	Headers   map[string][]string `json:"headers"`
+	Methods   []string            `json:"methods"`
+	UrlParams map[string][]string `json:"urlParams"`
+	Prefix    string              `json:"prefix"`
+	Suffix    string              `json:"suffix"`
 }
 
 // type PublicKey struct {
 // 	Encodings []string `json:"encodings"`
 // 	Value     string   `json:"value"`
 // }
+
+type HttpPlacement struct {
+	Header    string `json:"header"`
+	UrlParam  string `json:"urlParam"`
+	PathParam string `json:"pathParam"`
+	Body      bool   `json:"body"`
+}
+
+type Operation struct {
+	Action string   `json:"action"`
+	Value  []string `json:"value"`
+}
+
+type Payload struct {
+	Placement  HttpPlacement `json:"placement"`
+	Operations []Operation   `json:"operations"`
+}
+
+type Id struct {
+	Placement  HttpPlacement `json:"placement"`
+	Operations []Operation   `json:"operations"`
+}
 
 type Tick struct {
 	SleepMin int `json:"sleepMin"`
@@ -58,30 +80,45 @@ func (p *Profile) GetHttpClient() (client *http.Client) {
 	}
 }
 
-func (p *Profile) GetRequestIncall(body []byte) (req *http.Request, err error) {
-	return p.getRequest(&p.Incall, body)
+func (p *Profile) GetRequestIncall(agentId *string, payload []byte) (req *http.Request, err error) {
+	return p.getRequest(agentId, &p.Incall, payload)
 }
 
-func (p *Profile) GetRequestOutcall(body []byte) (req *http.Request, err error) {
-	return p.getRequest(&p.Outcall, body)
+func (p *Profile) GetRequestOutcall(agentId *string, payload []byte) (req *http.Request, err error) {
+	return p.getRequest(agentId, &p.Outcall, payload)
 }
 
-func (p *Profile) getRequest(profileRequest *ProfileRequest, body []byte) (req *http.Request, err error) {
+func (p *Profile) getRequest(agentId *string, profileRequest *ProfileRequest, payload []byte) (req *http.Request, err error) {
 	method := slices.Rand(&profileRequest.Methods)
 	host := slices.Rand(&profileRequest.Hosts)
 	route := "/" + strings.TrimPrefix(slices.Rand(&profileRequest.Routes), "/")
 
+	if len(profileRequest.Payload.Placement.PathParam) != 0 {
+		route = strings.ReplaceAll(route, "{"+profileRequest.Payload.Placement.PathParam+"}", *agentId)
+	}
+	if len(profileRequest.ID.Placement.PathParam) != 0 {
+		route = strings.ReplaceAll(route, "{"+profileRequest.ID.Placement.PathParam+"}", *agentId)
+	}
+
 	if len(profileRequest.UrlParams) != 0 {
 		route += "?"
 		for name, values := range profileRequest.UrlParams {
+			if len(profileRequest.ID.Placement.UrlParam) != 0 && name == profileRequest.ID.Placement.UrlParam {
+				route += name + "=" + *agentId + "&"
+				continue
+			}
+			if len(profileRequest.Payload.Placement.UrlParam) != 0 && name == profileRequest.Payload.Placement.UrlParam {
+				route += name + "=" + *agentId + "&"
+				continue
+			}
 			route += name + "=" + slices.Rand(&values) + "&"
 		}
 		route = strings.TrimSuffix(route, "&")
 	}
 
 	var bodyBuffer *bytes.Buffer = bytes.NewBuffer(nil)
-	if len(body) != 0 {
-		bodyBuffer.Write(body)
+	if len(payload) != 0 && profileRequest.Payload.Placement.Body {
+		bodyBuffer.Write(payload)
 	}
 
 	req, err = http.NewRequest(method, host+route, bodyBuffer)
@@ -91,8 +128,25 @@ func (p *Profile) getRequest(profileRequest *ProfileRequest, body []byte) (req *
 
 	if len(profileRequest.Headers) != 0 {
 		for name, values := range profileRequest.Headers {
+			if len(profileRequest.Payload.Placement.Header) != 0 && name == profileRequest.Payload.Placement.Header {
+				if name == "Host" {
+					req.Host = *agentId
+					continue
+				}
+				req.Header.Add(name, *agentId)
+				continue
+			}
+			if len(profileRequest.ID.Placement.Header) != 0 && name == profileRequest.ID.Placement.Header {
+				if name == "Host" {
+					req.Host = *agentId
+					continue
+				}
+				req.Header.Add(name, *agentId)
+				continue
+			}
 			if name == "Host" {
 				req.Host = slices.Rand(&values)
+				continue
 			}
 			req.Header.Add(name, slices.Rand(&values))
 		}

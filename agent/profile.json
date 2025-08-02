@@ -13,6 +13,24 @@
     },
 
     "outcall": {
+        "id": {
+            "operations": [
+                { "action": "hex" },
+                { "action": "prefix", "value": ["cache-sum5="] }
+            ],
+            "placement": {
+                "header": "User-Agent"
+            }
+        },
+        "payload": {
+            "operations": [
+                { "action": "hex" },
+                { "action": "csv" }
+            ],
+            "placement": {
+                "body": true
+            }
+        },
         "timeout": 10000,
         "hosts": [
             "http://127.0.0.1:8080"
@@ -33,14 +51,24 @@
          "methods": [
             "POST",
             "PUT"
-        ],
-        "operations": [
-            "hex",
-            "csv"
         ]
     },
 
     "incall": {
+        "id": {
+            "operations": [
+                { "action": "hex" }
+            ],
+            "placement": {
+                "urlParam": "xyz"
+            }
+        },
+        "payload": {
+            "operations": [
+                { "action": "csv_d" },
+                { "action": "hex_d" }
+            ]
+        },
         "timeout": 10000,
         "hosts": [
             "http://127.0.0.1:8080"
@@ -68,10 +96,6 @@
         },
         "methods": [
             "GET"
-        ],
-        "operations": [
-            "csv_d",
-            "hex_d"
         ],
         "urlParams": {
             "xyz": [

