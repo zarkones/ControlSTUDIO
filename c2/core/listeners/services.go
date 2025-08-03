@@ -2,6 +2,7 @@ package listeners
 
 import (
 	"common/profiles"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ type ListenerService struct {
 	Server *http.Server
 }
 
-func errorHandler(err error, r *http.Request) (abort bool) {
+func maybeAbort(err error, r *http.Request) (abort bool) {
 	if err == nil {
 		return false
 	}
@@ -21,16 +22,27 @@ func errorHandler(err error, r *http.Request) (abort bool) {
 	return true
 }
 
-func getLatestMessage(profile *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
+func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		obfuscatedAgentID, err := extractPlacement(&profile.ID.Placement, r)
-		errorHandler(err, r)
-		agentID, err := profiles.OperateData(&profile.ID.Operations, &obfuscatedAgentID)
-		errorHandler(err, r)
+		obfuscatedAgentID, err := extractPlacement(&req.ID.Placement, r)
+		if maybeAbort(err, r) {
+			return
+		}
 
-		obfuscatedData, err := extractPlacement(&profile.Payload.Placement, r)
-		errorHandler(err, r)
-		payload, err := profiles.OperateData(&profile.Payload.Operations, &obfuscatedData)
+		agentID, err := profiles.OperateDataReverseOperations(&req.ID.Operations, &obfuscatedAgentID, false)
+		if maybeAbort(err, r) {
+			return
+		}
+
+		obfuscatedData, err := extractPlacement(&req.Payload.Placement, r)
+		if !errors.Is(err, ErrPlacementUnspecified) && maybeAbort(err, r) {
+			return
+		}
+
+		payload, err := profiles.OperateDataReverseOperations(&req.Payload.Operations, &obfuscatedData, false)
+		if maybeAbort(err, r) {
+			return
+		}
 
 		fmt.Println(agentID, "\n", payload)
 	}
@@ -46,21 +58,21 @@ func respondToMessage(profile *profiles.ProfileRequest) (handler func(w http.Res
 func handlersFromProfile(profile *profiles.Profile) (handler *http.ServeMux, err error) {
 	handler = http.NewServeMux()
 
-	for _, method := range profile.Incall.Methods {
-		for _, route := range profile.Incall.Routes {
+	for _, method := range profile.Receive.Methods {
+		for _, route := range profile.Receive.Routes {
 			if !strings.HasPrefix(route, "/") {
 				route = "/" + route
 			}
-			handler.HandleFunc(method+" "+route, getLatestMessage(&profile.Incall))
+			handler.HandleFunc(method+" "+route, getLatestMessage(&profile.Receive))
 		}
 	}
 
-	for _, method := range profile.Outcall.Methods {
-		for _, route := range profile.Outcall.Routes {
+	for _, method := range profile.Respond.Methods {
+		for _, route := range profile.Respond.Routes {
 			if !strings.HasPrefix(route, "/") {
 				route = "/" + route
 			}
-			handler.HandleFunc(method+" "+route, respondToMessage(&profile.Outcall))
+			handler.HandleFunc(method+" "+route, respondToMessage(&profile.Respond))
 		}
 	}
 

@@ -12,7 +12,7 @@
         "sleepMax": 3000
     },
 
-    "outcall": {
+    "respond": {
         "id": {
             "operations": [
                 { "action": "hex" },
@@ -54,7 +54,7 @@
         ]
     },
 
-    "incall": {
+    "receive": {
         "id": {
             "operations": [
                 { "action": "hex" }
@@ -65,8 +65,8 @@
         },
         "payload": {
             "operations": [
-                { "action": "csv_d" },
-                { "action": "hex_d" }
+                { "action": "csv" },
+                { "action": "hex" }
             ]
         },
         "timeout": 10000,

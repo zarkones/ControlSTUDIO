@@ -68,8 +68,8 @@ type Tick struct {
 
 type Profile struct {
 	// PublicKey PublicKey      `json:"publicKey"`
-	Incall  ProfileRequest `json:"incall"`
-	Outcall ProfileRequest `json:"outcall"`
+	Receive ProfileRequest `json:"receive"`
+	Respond ProfileRequest `json:"respond"`
 	Tick    Tick           `json:"tick"`
 }
 
@@ -79,13 +79,13 @@ func (p *Profile) Validate() (err error) {
 }
 
 func (p *Profile) GetHosts() (hosts []Host) {
-	hosts = make([]Host, len(p.Incall.Hosts)+len(p.Outcall.Hosts))
+	hosts = make([]Host, len(p.Receive.Hosts)+len(p.Respond.Hosts))
 	index := 0
-	for _, host := range p.Incall.Hosts {
+	for _, host := range p.Receive.Hosts {
 		hosts[index] = host
 		index++
 	}
-	for _, host := range p.Outcall.Hosts {
+	for _, host := range p.Respond.Hosts {
 		hosts[index] = host
 		index++
 	}
@@ -101,16 +101,16 @@ func (p *Profile) GetTickAmount() (amount time.Duration) {
 
 func (p *Profile) GetHttpClient() (client *http.Client) {
 	return &http.Client{
-		Timeout: time.Millisecond * time.Duration(p.Incall.Timeout),
+		Timeout: time.Millisecond * time.Duration(p.Receive.Timeout),
 	}
 }
 
 func (p *Profile) GetRequestIncall(agentId *string, payload []byte) (req *http.Request, err error) {
-	return p.getRequest(agentId, &p.Incall, payload)
+	return p.getRequest(agentId, &p.Receive, payload)
 }
 
 func (p *Profile) GetRequestOutcall(agentId *string, payload []byte) (req *http.Request, err error) {
-	return p.getRequest(agentId, &p.Outcall, payload)
+	return p.getRequest(agentId, &p.Respond, payload)
 }
 
 func (p *Profile) getRequest(agentId *string, profileRequest *ProfileRequest, payload []byte) (req *http.Request, err error) {

