@@ -1,11 +1,15 @@
 package listeners
 
 import (
+	"c2/models"
 	"c2/repos"
 	"common/profiles"
+	"errors"
 	"log"
 	"net/http"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type ListenerService struct {
@@ -42,6 +46,13 @@ func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.Respons
 		agentID, err := getID(req, r)
 		if maybeAbort(err, r) {
 			return
+		}
+
+		if _, err := repos.GetAgent(agentID); errors.Is(err, gorm.ErrRecordNotFound) {
+			repos.InsertAgent(&models.Agent{
+				ID: agentID,
+				IP: r.RemoteAddr,
+			})
 		}
 
 		message, err := repos.GetOldestMessageForAgent(agentID)
