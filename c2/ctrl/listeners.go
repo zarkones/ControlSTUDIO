@@ -2,6 +2,7 @@ package ctrl
 
 import (
 	"c2/core/listeners"
+	"c2/repos"
 	"encoding/json"
 	"net/http"
 )
@@ -24,7 +25,35 @@ func InsertListener(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listeners.Insert(l)
+	if len(l.ProfileID) == 0 {
+		http.Error(w, "invalid profile id", http.StatusBadRequest)
+		return
+	}
+	if len(l.Address) == 0 {
+		http.Error(w, "invalid profile address", http.StatusBadRequest)
+		return
+	}
+	if len(l.Port) == 0 {
+		http.Error(w, "invalid profile port", http.StatusBadRequest)
+		return
+	}
+
+	metaProfile, err := repos.GetProfile(l.ProfileID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	profile, err := metaProfile.GetProfile()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := listeners.Insert(l, &profile); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }

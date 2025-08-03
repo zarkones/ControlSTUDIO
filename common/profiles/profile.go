@@ -5,6 +5,7 @@ import (
 	"common/slices"
 	"encoding/json"
 	"math/rand"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +15,7 @@ type ProfileRequest struct {
 	ID        Id                  `json:"id"`
 	Payload   Payload             `json:"payload"`
 	Timeout   int                 `json:"timeout"`
-	Hosts     []string            `json:"hosts"`
+	Hosts     []Host              `json:"hosts"`
 	Routes    []string            `json:"routes"`
 	Headers   map[string][]string `json:"headers"`
 	Methods   []string            `json:"methods"`
@@ -27,6 +28,16 @@ type ProfileRequest struct {
 // 	Encodings []string `json:"encodings"`
 // 	Value     string   `json:"value"`
 // }
+
+type Host struct {
+	Protocol string `json:"protocol"`
+	Address  string `json:"address"`
+	Port     string `json:"port"`
+}
+
+func (h *Host) ToString() (host string) {
+	return h.Protocol + net.JoinHostPort(h.Address, h.Port)
+}
 
 type HttpPlacement struct {
 	Header    string `json:"header"`
@@ -65,6 +76,20 @@ type Profile struct {
 func (p *Profile) Validate() (err error) {
 	// TODO
 	return nil
+}
+
+func (p *Profile) GetHosts() (hosts []Host) {
+	hosts = make([]Host, len(p.Incall.Hosts)+len(p.Outcall.Hosts))
+	index := 0
+	for _, host := range p.Incall.Hosts {
+		hosts[index] = host
+		index++
+	}
+	for _, host := range p.Outcall.Hosts {
+		hosts[index] = host
+		index++
+	}
+	return hosts
 }
 
 func (p *Profile) GetTickAmount() (amount time.Duration) {
@@ -121,7 +146,7 @@ func (p *Profile) getRequest(agentId *string, profileRequest *ProfileRequest, pa
 		bodyBuffer.Write(payload)
 	}
 
-	req, err = http.NewRequest(method, host+route, bodyBuffer)
+	req, err = http.NewRequest(method, host.ToString()+route, bodyBuffer)
 	if err != nil {
 		return nil, err
 	}

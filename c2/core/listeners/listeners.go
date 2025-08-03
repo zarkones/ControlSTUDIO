@@ -1,8 +1,12 @@
 package listeners
 
 import (
+	"common/profiles"
+	"context"
 	"errors"
+	"log"
 	"net"
+	"net/http"
 	"sync"
 )
 
@@ -23,11 +27,12 @@ func (l *Listener) GetHost() (host string) {
 var (
 	listeners    = map[string]Listener{}
 	listenersMux = &sync.Mutex{}
+	services     = map[string]ListenerService{}
 
 	ErrAlreadyExists = errors.New("listener already exists")
 )
 
-func Insert(listener Listener) (err error) {
+func Insert(listener Listener, profile *profiles.Profile) (err error) {
 	defer listenersMux.Unlock()
 	listenersMux.Lock()
 
@@ -39,12 +44,38 @@ func Insert(listener Listener) (err error) {
 
 	listeners[id] = listener
 
+	handler, err := handlersFromProfile(profile)
+	if err != nil {
+		return err
+	}
+
+	services[id] = ListenerService{
+		Server: &http.Server{
+			Addr:    listener.GetHost(),
+			Handler: handler,
+		},
+	}
+
+	go func() {
+		log.Println("starting listener service at:", listener.GetHost())
+		if err := services[id].Server.ListenAndServe(); err != nil {
+			log.Println("listener error:", id, err)
+			Delete(listener)
+		}
+	}()
+
 	return nil
 }
 
 func Delete(listener Listener) {
 	defer listenersMux.Unlock()
 	listenersMux.Lock()
+
+	if _, ok := listeners[listener.GetID()]; !ok {
+		return
+	}
+
+	services[listener.GetID()].Server.Shutdown(context.Background())
 
 	delete(listeners, listener.GetID())
 }

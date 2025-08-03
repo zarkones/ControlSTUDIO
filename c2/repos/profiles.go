@@ -5,6 +5,10 @@ import (
 	"c2/models"
 )
 
+func GetProfile(profileID string) (profile models.MetaProfile, err error) {
+	return profile, db.ORM.Where("profile_id = ?", profileID).First(&profile).Error
+}
+
 func GetProfiles() (profiles []models.MetaProfile, err error) {
 	return profiles, db.ORM.Find(&profiles).Error
 }
