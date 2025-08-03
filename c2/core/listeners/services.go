@@ -21,13 +21,25 @@ func maybeAbort(err error, r *http.Request) (abort bool) {
 	return true
 }
 
+func getID(req *profiles.ProfileRequest, r *http.Request) (agentID string, err error) {
+	obfuscatedAgentID, err := extractPlacement(&req.ID.Placement, r)
+	if err != nil {
+		return "", err
+	}
+	return profiles.OperateDataReverseOperations(&req.ID.Operations, &obfuscatedAgentID, false)
+}
+
+func getBody(req *profiles.ProfileRequest, r *http.Request) (agentID string, err error) {
+	obfuscatedData, err := extractPlacement(&req.Payload.Request.Placement, r)
+	if err != nil {
+		return "", err
+	}
+	return profiles.OperateDataReverseOperations(&req.Payload.Request.Operations, &obfuscatedData, false)
+}
+
 func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		obfuscatedAgentID, err := extractPlacement(&req.ID.Placement, r)
-		if maybeAbort(err, r) {
-			return
-		}
-		agentID, err := profiles.OperateDataReverseOperations(&req.ID.Operations, &obfuscatedAgentID, false)
+		agentID, err := getID(req, r)
 		if maybeAbort(err, r) {
 			return
 		}
@@ -46,24 +58,37 @@ func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.Respons
 			w.WriteHeader(req.Payload.Response.StatusCode)
 		}
 		w.Write([]byte(obfuscatedResponse))
-
-		// fmt.Println(agentID, "\n", payload)
 	}
 
 }
 
-func respondToMessage(profile *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
+func respondToMessage(req *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		body, err := getBody(req, r)
+		if maybeAbort(err, r) {
+			return
+		}
 
-		// obfuscatedData, err := extractPlacement(&req.Payload.Placement, r)
-		// if !errors.Is(err, ErrPlacementUnspecified) && maybeAbort(err, r) {
-		// 	return
-		// }
-		// payload, err := profiles.OperateDataReverseOperations(&req.Payload.Operations, &obfuscatedData, false)
-		// if maybeAbort(err, r) {
-		// 	return
-		// }
+		_, err = repos.UpdateOldestMessageResponse(body)
+		if maybeAbort(err, r) {
+			return
+		}
+
+		if req.Payload.Response.StatusCode > 0 {
+			w.WriteHeader(req.Payload.Response.StatusCode)
+		}
+		if len(req.Payload.Request.Operations) == 0 {
+			return
+		}
+
+		emptyResp := ""
+
+		obfuscatedResponse, err := profiles.OperateData(&req.Payload.Response.Operations, &emptyResp, true)
+		if maybeAbort(err, r) {
+			return
+		}
+
+		w.Write([]byte(obfuscatedResponse))
 	}
 }
 
