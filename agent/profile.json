@@ -23,12 +23,22 @@
             }
         },
         "payload": {
-            "operations": [
-                { "action": "hex" },
-                { "action": "csv" }
-            ],
-            "placement": {
-                "body": true
+            "request": {
+                "operations": [
+                    { "action": "hex" },
+                    { "action": "csv" }
+                ],
+                "placement": {
+                    "body": true
+                }
+            },
+            "response": {
+                "operations": [
+                    { "action": "base64" }
+                ],
+                "placement": {
+                    "body": true
+                }
             }
         },
         "timeout": 10000,
@@ -64,10 +74,16 @@
             }
         },
         "payload": {
-            "operations": [
-                { "action": "csv" },
-                { "action": "hex" }
-            ]
+            "response": {
+                "operations": [
+                    { "action": "hex" },
+                    { "action": "prefix", "value": ["{\"upload_id\":\""] },
+                    { "action": "suffix", "value": ["\"}"] }
+                ],
+                "placement": {
+                    "body": true
+                }
+            }
         },
         "timeout": 10000,
         "hosts": [

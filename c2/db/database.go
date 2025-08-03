@@ -24,6 +24,7 @@ func Init(dbName string) error {
 	if err := db.AutoMigrate(
 		&models.Agent{},
 		&models.MetaProfile{},
+		&models.Message{},
 	); err != nil {
 		return err
 	}
