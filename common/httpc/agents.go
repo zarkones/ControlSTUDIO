@@ -26,6 +26,11 @@ func GetAgents() (agents []models.Agent, err error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
 	switch resp.StatusCode {
 	default:
 		return nil, ErrUnexpectedStatusCode

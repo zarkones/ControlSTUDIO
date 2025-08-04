@@ -9,32 +9,32 @@ import (
 
 var ErrMsgRespPopulated = errors.New("message's response is already populated")
 
-// func GetMultiple(agentID string, offset, limit int) (messages []models.Message, err error) {
-// 	return messages, db.ORM.
-// 		Where("agent_id = ?", agentID).
-// 		Offset(offset).
-// 		Limit(limit).
-// 		Order("created_at DESC").
-// 		Find(&messages).Error
-// }
+func GetMessages(agentID string, offset, limit int) (messages []models.Message, err error) {
+	return messages, db.ORM.
+		Where("agent_id = ?", agentID).
+		Offset(offset).
+		Limit(limit).
+		Order("created_at DESC").
+		Find(&messages).Error
+}
 
-// func GetMultipleBefore(agentID string, before int64, limit int) (messages []models.Message, err error) {
-// 	return messages, db.ORM.
-// 		Where("agent_id = ?", agentID).
-// 		Where("created_at < ?", before).
-// 		Order("created_at DESC").
-// 		Limit(limit).
-// 		Find(&messages).Error
-// }
+func GetMessagesBefore(agentID string, before int64, limit int) (messages []models.Message, err error) {
+	return messages, db.ORM.
+		Where("agent_id = ?", agentID).
+		Where("created_at < ?", before).
+		Order("created_at DESC").
+		Limit(limit).
+		Find(&messages).Error
+}
 
-// func GetMultipleAfter(agentID string, after int64, limit int) (messages []models.Message, err error) {
-// 	return messages, db.ORM.
-// 		Where("agent_id = ?", agentID).
-// 		Where("created_at > ?", after).
-// 		Order("created_at ASC").
-// 		Limit(limit).
-// 		Find(&messages).Error
-// }
+func GetMessagesAfter(agentID string, after int64, limit int) (messages []models.Message, err error) {
+	return messages, db.ORM.
+		Where("agent_id = ?", agentID).
+		Where("created_at > ?", after).
+		Order("created_at ASC").
+		Limit(limit).
+		Find(&messages).Error
+}
 
 // func Get(messageID string) (messages models.Message, err error) {
 // 	return messages, db.ORM.Where("id = ?", messageID).First(&messages).Error
