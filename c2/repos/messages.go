@@ -61,18 +61,15 @@ func InsertMessage(message *models.Message) (err error) {
 	return db.ORM.Create(&message).Error
 }
 
-func UpdateOldestMessageResponse(response string) (agentID string, err error) {
-	var message models.Message
-	if err := db.ORM.
-		Table("messages").
-		Order("created_at ASC").
-		First(&message).Error; err != nil {
-		return "", err
+func UpdateOldestMessageResponse(agentID, response string) (err error) {
+	message, err := GetOldestMessageForAgent(agentID)
+	if err != nil {
+		return err
 	}
 	if message.Response != "" {
-		return "", ErrMsgRespPopulated
+		return ErrMsgRespPopulated
 	}
 	message.Response = response
 	message.UpdatedAt = time.Now().UnixNano()
-	return message.AgentID, db.ORM.Save(message).Error
+	return db.ORM.Save(message).Error
 }

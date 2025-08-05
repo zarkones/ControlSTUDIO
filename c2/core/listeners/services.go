@@ -75,13 +75,17 @@ func getLatestMessage(req *profiles.ProfileRequest) (handler func(w http.Respons
 
 func respondToMessage(req *profiles.ProfileRequest) (handler func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		agentID, err := getID(req, r)
+		if maybeAbort(err, r) {
+			return
+		}
+
 		body, err := getBody(req, r)
 		if maybeAbort(err, r) {
 			return
 		}
 
-		_, err = repos.UpdateOldestMessageResponse(body)
-		if maybeAbort(err, r) {
+		if err = repos.UpdateOldestMessageResponse(agentID, body); maybeAbort(err, r) {
 			return
 		}
 

@@ -69,5 +69,5 @@ func receive(agentId *string, profile *profiles.Profile) (instruction string, er
 
 	bodyStr := string(body)
 
-	return profiles.OperateData(&profile.Receive.Payload.Response.Operations, &bodyStr, false)
+	return profiles.OperateDataReverseOperations(&profile.Receive.Payload.Response.Operations, &bodyStr, false)
 }

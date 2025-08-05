@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"c2/models"
 	"common/httpc"
+	"fmt"
 	"image/png"
 	"math"
 	"time"
 	"ui/state"
 	"ui/static"
+	"ui/views"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -105,7 +107,7 @@ func newAgentNode(agent models.Agent) *fyne.Container {
 			widget.NewLabel(agent.IP),
 
 			widget.NewButtonWithIcon("", theme.MoreVerticalIcon(), func() {
-				// views.AgentWindow(agent)
+				views.AgentWindow(agent)
 			}),
 		),
 	)
@@ -160,7 +162,12 @@ func Agents() fyne.CanvasObject {
 	c2Node.Refresh()
 
 	updateDiagram := func() {
-		state.Agents, _ = httpc.GetAgents()
+		var err error
+		state.Agents, err = httpc.GetAgents()
+		if err != nil {
+			fmt.Println("error httpc.GetAgents:", err)
+			return
+		}
 
 		points := generatePositions(c2Node.Position(), len(state.Agents))
 
