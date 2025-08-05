@@ -21,13 +21,13 @@ func Notify(title, msg string) {
 }
 
 func Info(msg string) {
-	Notify("ControlSTUDIO: New Notification", msg)
+	Notify("ControlSTUDIO Notification", msg)
 }
 
 func Warn(msg string) {
-	Notify("ControlSTUDIO: New Warning!", msg)
+	Notify("ControlSTUDIO Warning!", msg)
 }
 
 func Alert(msg string) {
-	Notify("ControlSTUDIO: New Alert!", msg)
+	Notify("ControlSTUDIO Alert!", msg)
 }
