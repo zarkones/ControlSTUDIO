@@ -8,6 +8,7 @@ import (
 func initRouting(r *http.ServeMux) {
 	r.HandleFunc("GET /v1/agents", ctrl.GetAgents)
 
+	r.HandleFunc("POST /v1/messages/by-ids", ctrl.GetMessageByIDs)
 	r.HandleFunc("GET /v1/messages/{agentID}", ctrl.GetMessages)
 	r.HandleFunc("PUT /v1/messages/{agentID}", ctrl.InsertMessage)
 

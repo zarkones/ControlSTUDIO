@@ -3,6 +3,7 @@ package ctrl
 import (
 	"c2/models"
 	"c2/repos"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -59,6 +60,42 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jj(w, &resp)
+}
+
+type GetMessageUpdatesReqCtx []string
+type GetMessageUpdatesRespCtx map[string]models.Message
+
+func GetMessageByIDs(w http.ResponseWriter, r *http.Request) {
+	var messageIDs GetMessageUpdatesReqCtx
+
+	if err := json.NewDecoder(r.Body).Decode(&messageIDs); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if messageIDs == nil || len(messageIDs) == 0 {
+		http.Error(w, "no ids supplied", http.StatusUnprocessableEntity)
+		return
+	}
+
+	messages, err := repos.GetMessagesByIDs(messageIDs)
+	if err != nil {
+		log.Println("api: error: GetMessages:", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+
+	if len(messages) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	msgMap := make(GetMessageUpdatesRespCtx, len(messages))
+	for _, msg := range messages {
+		msgMap[msg.ID] = msg
+	}
+
+	jj(w, &msgMap)
 }
 
 func InsertMessage(w http.ResponseWriter, r *http.Request) {

@@ -56,25 +56,48 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 	cmdInput := widget.NewEntry()
 	cmdInput.SetPlaceHolder("Enter Command Here")
 
+	// Fixed: Use slice to maintain message order
+	messages := []models.Message{}
+	messageIDs := map[string]int{} // Helper map to find message index by ID
+
 	messagesTxt := widget.NewRichText()
 	messagesTxt.Wrapping = fyne.TextWrapWord
 
 	messagesTxtScroll := container.NewVScroll(messagesTxt)
 
-	lastMsgsCount := 0
-	updatedOnRespID := ""
-	updateMsg := func() {
-		msgCtx, err := httpc.GetMessages(agent.ID, nil, nil, nil)
-		if err != nil {
-			fmt.Println("error httpc.GetMessages:", err)
-			return
+	fullyScrolled := true
+	messagesTxtScroll.OnScrolled = func(p fyne.Position) {
+		fmt.Println(p, messagesTxtScroll.Size())
+
+		// Get the scrollable content's total height
+		contentHeight := messagesTxtScroll.Content.Size().Height
+		// Get the visible area height of the scroll container
+		visibleHeight := messagesTxtScroll.Size().Height
+		// Get the current vertical scroll position
+		scrollY := p.Y
+
+		// Check if the scroll position is at or near the bottom
+		if scrollY >= contentHeight-visibleHeight {
+			fmt.Println("Reached the bottom!")
+			fullyScrolled = true
+		} else {
+			fullyScrolled = false
 		}
+	}
 
-		fyne.Do(func() {
-			messagesTxt.Segments = make([]widget.RichTextSegment, len(msgCtx.Messages)*2)
+	after := ""
+	before := ""
+	page := 0
 
+	updateMsg := func() {
+
+		refresh := false
+		scrollToBottom := false
+		oldMsgLen := len(messages)
+		defer func() {
+			messagesTxt.Segments = make([]widget.RichTextSegment, len(messages)*2)
 			i := 0
-			for _, msg := range msgCtx.Messages {
+			for _, msg := range messages {
 				messagesTxt.Segments[i] = &widget.TextSegment{
 					Style: widget.RichTextStyleSubHeading,
 					Text:  "_> " + msg.Request,
@@ -88,25 +111,82 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 				i++
 			}
 
-			// Scroll to bottom if latest message got a response.
-			if len(msgCtx.Messages) != 0 && msgCtx.Messages[len(msgCtx.Messages)-1].ID != updatedOnRespID && len(msgCtx.Messages[len(msgCtx.Messages)-1].Response) != 0 {
-				updatedOnRespID = msgCtx.Messages[len(msgCtx.Messages)-1].ID
-				// messagesTxt.Refresh()
-				messagesTxtScroll.ScrollToBottom()
-			} else {
-				// Don't refresh the messages text if no new messages are present and no response was received to the latest message.
-				if lastMsgsCount != len(msgCtx.Messages) {
-					// messagesTxt.Refresh()
-				}
-			}
-			// Scroll to bottom if there is new message.
-			if lastMsgsCount != len(msgCtx.Messages) {
-				messagesTxtScroll.ScrollToBottom()
-				lastMsgsCount = len(msgCtx.Messages)
+			if oldMsgLen != len(messages) {
+				refresh = true
 			}
 
-			messagesTxt.Refresh()
+			fyne.DoAndWait(func() {
+				if scrollToBottom || fullyScrolled {
+					messagesTxtScroll.ScrollToBottom()
+				}
+				if refresh {
+					messagesTxtScroll.Refresh()
+				}
+			})
+		}()
+
+		newMessagesCtx, err := httpc.GetMessages(agent.ID, &before, &after, &page)
+		if err != nil {
+			fmt.Println("error httpc.GetMessages:", err)
+			return
+		}
+
+		fyne.DoAndWait(func() {
+			if len(newMessagesCtx.Messages) != 0 {
+				after = newMessagesCtx.After
+				for i := len(newMessagesCtx.Messages) - 1; i >= 0; i-- {
+					msg := newMessagesCtx.Messages[i]
+					// Check if message already exists
+					if _, exists := messageIDs[msg.ID]; !exists {
+						// Add new message
+						messageIDs[msg.ID] = len(messages)
+						messages = append(messages, msg)
+					}
+				}
+				if fullyScrolled {
+					scrollToBottom = true
+					refresh = true
+				}
+			}
 		})
+
+		messagesWithoutResponsesIDs := []string{}
+		for _, msg := range messages {
+			if len(msg.Response) != 0 {
+				continue
+			}
+			messagesWithoutResponsesIDs = append(messagesWithoutResponsesIDs, msg.ID)
+		}
+
+		if len(messagesWithoutResponsesIDs) == 0 {
+			return
+		}
+
+		msgMapMaybeWithResponses, err := httpc.GetMessagesByIDs(&messagesWithoutResponsesIDs)
+		if err != nil {
+			fmt.Println("error httpc.GetMessagesByIDs:", err)
+			scrollToBottom = true
+			refresh = true
+			return
+		}
+
+		for _, msgMaybeWithResponse := range msgMapMaybeWithResponses {
+			if index, exists := messageIDs[msgMaybeWithResponse.ID]; exists {
+				if len(messages[index].Response) == 0 && len(msgMaybeWithResponse.Response) != 0 {
+					scrollToBottom = true
+					refresh = true
+
+					messages[index] = models.Message{
+						ID:        msgMaybeWithResponse.ID,
+						AgentID:   msgMaybeWithResponse.AgentID,
+						Request:   msgMaybeWithResponse.Request,
+						Response:  msgMaybeWithResponse.Response,
+						CreatedAt: msgMaybeWithResponse.CreatedAt,
+						UpdatedAt: msgMaybeWithResponse.UpdatedAt,
+					}
+				}
+			}
+		}
 	}
 
 	sendBtn := widget.NewButtonWithIcon("SEND", theme.MailSendIcon(), func() {
@@ -123,24 +203,33 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 			if err := httpc.InsertMessage(agent.ID, cmdInput.Text); err != nil {
 				Alert("Failed To Send Message, exception:" + err.Error())
 			} else {
-				fyne.Do(func() {
-					updateMsg()
-					cmdInput.SetText("")
-				})
+				updateMsg()
+				if fullyScrolled {
+					fyne.DoAndWait(func() {
+						messagesTxtScroll.ScrollToBottom()
+					})
+				}
+				cmdInput.SetText("")
 			}
 		}()
 	})
 
+	breakApiFetchLoop := false
+	(*w).SetOnClosed(func() {
+		breakApiFetchLoop = true
+	})
+
 	go func() {
 		updateMsg()
-		messagesTxtScroll.ScrollToBottom()
+		// time.Sleep(time.Second)
+		fyne.DoAndWait(messagesTxtScroll.ScrollToBottom)
 		for range time.Tick(time.Second * 4) {
+			if breakApiFetchLoop {
+				return
+			}
 			updateMsg()
 		}
 	}()
-
-	// inspector := ToolsInspector()
-	// toolsTable := NewToolsTable(agent, &inspector)
 
 	img, _ := png.Decode(bytes.NewReader(static.XenaAvatar))
 	avatar := canvas.NewImageFromImage(img)
@@ -151,8 +240,8 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 		container.NewStack(
 			container.NewHBox(
 				avatar,
-				widget.NewLabel("Hostname: "+agent.Hostname),
-				widget.NewLabel("OS: "+agent.OS+" "+agent.Arch),
+				// widget.NewLabel("Hostname: "+agent.Hostname),
+				// widget.NewLabel("OS: "+agent.OS+" "+agent.Arch),
 				widget.NewLabel("IP: "+agent.IP),
 			),
 		),
