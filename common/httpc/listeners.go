@@ -1,16 +1,16 @@
 package httpc
 
 import (
-	"c2/models"
+	"c2/core/listeners"
 	"encoding/json"
 	"net/http"
 )
 
-func GetAgents() (agents []models.Agent, err error) {
+func GetListeners() (ls []listeners.Listener, err error) {
 	if len(BaseURL) == 0 {
 		return nil, ErrInvalidBaseURL
 	}
-	resp, err := client.Get(BaseURL + "/v1/agents")
+	resp, err := client.Get(BaseURL + "/v1/listeners")
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +23,8 @@ func GetAgents() (agents []models.Agent, err error) {
 	default:
 		return nil, ErrUnexpectedStatusCode
 	case http.StatusNoContent:
-		return []models.Agent{}, nil
+		return []listeners.Listener{}, nil
 	case http.StatusOK:
-		return agents, json.NewDecoder(resp.Body).Decode(&agents)
+		return ls, json.NewDecoder(resp.Body).Decode(&ls)
 	}
 }

@@ -2,11 +2,13 @@ package pages
 
 import (
 	"bytes"
+	"c2/core/listeners"
 	"c2/models"
 	"common/httpc"
 	"fmt"
 	"image/png"
 	"math"
+	"slices"
 	"time"
 	"ui/state"
 	"ui/static"
@@ -19,12 +21,11 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	dia "fyne.io/x/fyne/widget/diagramwidget"
-	"golang.org/x/exp/slices"
 )
 
 var diagramWidget = dia.NewDiagramWidget("ENGAGEMENT")
 
-var avatar *canvas.Image
+var xenaAvatar *canvas.Image
 var agentAvatar *canvas.Image
 var osLogoWindows *canvas.Image
 var osLogoLinux *canvas.Image
@@ -86,7 +87,7 @@ func newAgentNode(agent models.Agent) *fyne.Container {
 	case "darwin":
 		osLogo = osLogoDarwin
 	default:
-		osLogo = avatar
+		osLogo = xenaAvatar
 	}
 
 	return container.NewVBox(
@@ -113,8 +114,36 @@ func newAgentNode(agent models.Agent) *fyne.Container {
 	)
 }
 
+func newListenerNode(listener listeners.Listener) *fyne.Container {
+	return container.NewVBox(
+		// 	// Primary.
+		// container.NewHBox(
+		// 	layout.NewSpacer(),
+		// 	widget.NewLabel(listener.GetHost()),
+		// 	layout.NewSpacer(),
+		// ),
+		// ),
+
+		// agentAvatar,
+		// widget.NewLabel("Listener:"),
+
+		// BOTTOM.
+		container.NewHBox(
+			xenaAvatar,
+
+			widget.NewLabel(listener.GetHost()),
+			// widget.NewLabel(listener.IP),
+
+			widget.NewButtonWithIcon("", theme.MoreVerticalIcon(), func() {
+				// views.AgentWindow(listener)
+			}),
+		),
+	)
+}
+
 func Agents() fyne.CanvasObject {
 	displayedAgentIDs := []string{}
+	displayedListenerIDs := []string{}
 
 	// C2 sprite.
 	c2Img, _ := png.Decode(bytes.NewReader(static.C2))
@@ -122,8 +151,8 @@ func Agents() fyne.CanvasObject {
 	c2Sprite.FillMode = canvas.ImageFillOriginal
 	// XENA Logo on agents.
 	xenalogoImg, _ := png.Decode(bytes.NewReader(static.XenaAvatar))
-	avatar = canvas.NewImageFromImage(xenalogoImg)
-	avatar.FillMode = canvas.ImageFillOriginal
+	xenaAvatar = canvas.NewImageFromImage(xenalogoImg)
+	xenaAvatar.FillMode = canvas.ImageFillOriginal
 	// Agent avatar.
 	agentlogoImg, _ := png.Decode(bytes.NewReader(static.AgentAvatar))
 	agentAvatar = canvas.NewImageFromImage(agentlogoImg)
@@ -168,30 +197,60 @@ func Agents() fyne.CanvasObject {
 			fmt.Println("error httpc.GetAgents:", err)
 			return
 		}
+		state.Listeners, err = httpc.GetListeners()
+		if err != nil {
+			fmt.Println("error httpc.GetListeners:", err)
+			return
+		}
 
-		points := generatePositions(c2Node.Position(), len(state.Agents))
+		listenerPoints := generatePositions(c2Node.Position(), len(state.Listeners))
 
-		for i, agent := range state.Agents {
-			if slices.Contains(displayedAgentIDs, agent.ID) {
+		for listenerIndex, listener := range state.Listeners {
+			if slices.Contains(displayedListenerIDs, listener.GetID()) {
 				continue
 			}
-			displayedAgentIDs = append(displayedAgentIDs, agent.ID)
+			displayedListenerIDs = append(displayedListenerIDs, listener.GetID())
 
-			agentNodeID := "AGENT:" + agent.ID
-			agentNode := dia.NewDiagramNode(diagramWidget, nil, agentNodeID)
-			agentNode.SetProperties(dia.DiagramElementProperties{
+			listenerNodeID := "LISTENER:" + listener.GetID()
+			listenerNode := dia.NewDiagramNode(diagramWidget, nil, listenerNodeID)
+			listenerNode.SetProperties(dia.DiagramElementProperties{
 				StrokeWidth: 0,
 			})
-			agentNode.Move(points[i])
+			listenerNode.Move(listenerPoints[listenerIndex])
 
-			agentNode.SetInnerObject(newAgentNode(agent))
+			listenerNode.SetInnerObject(newListenerNode(listener))
 
-			agentLinkID := "NODE_LINK:" + c2NodeID + "->" + agentNodeID
-			agentLink := dia.NewDiagramLink(diagramWidget, agentLinkID)
-			agentLink.SetSourcePad(c2Node.GetEdgePad())
-			agentLink.SetTargetPad(agentNode.GetEdgePad())
-			agentLink.AddSourceDecoration(dia.NewArrowhead())
+			listenerLinkID := "NODE_LINK_LISTENER:" + c2NodeID + "->" + listenerNodeID
+			listenerLink := dia.NewDiagramLink(diagramWidget, listenerLinkID)
+			listenerLink.SetSourcePad(c2Node.GetEdgePad())
+			listenerLink.SetTargetPad(listenerNode.GetEdgePad())
+			listenerLink.AddSourceDecoration(dia.NewArrowhead())
+
+			for agentIndex, agent := range state.Agents {
+				if slices.Contains(displayedAgentIDs, agent.ID) {
+					continue
+				}
+				displayedAgentIDs = append(displayedAgentIDs, agent.ID)
+
+				agentNodeID := "AGENT:" + agent.ID
+				agentNode := dia.NewDiagramNode(diagramWidget, nil, agentNodeID)
+				agentNode.SetProperties(dia.DiagramElementProperties{
+					StrokeWidth: 0,
+				})
+
+				agentPoints := generatePositions(listenerNode.Position(), len(state.Agents))
+				agentNode.Move(agentPoints[agentIndex])
+
+				agentNode.SetInnerObject(newAgentNode(agent))
+
+				agentLinkID := "NODE_LINK_AGENT:" + c2NodeID + "->" + agentNodeID
+				agentLink := dia.NewDiagramLink(diagramWidget, agentLinkID)
+				agentLink.SetSourcePad(listenerNode.GetEdgePad())
+				agentLink.SetTargetPad(agentNode.GetEdgePad())
+				agentLink.AddSourceDecoration(dia.NewArrowhead())
+			}
 		}
+
 	}
 
 	go func() {
