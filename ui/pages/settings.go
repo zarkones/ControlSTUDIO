@@ -15,6 +15,7 @@ func Settings() fyne.CanvasObject {
 	c2Host.Text = httpc.BaseURL
 	c2Host.OnChanged = func(s string) {
 		httpc.BaseURL = s
+		c2NodeLabel.SetText("C2: " + s)
 	}
 
 	return container.NewBorder(

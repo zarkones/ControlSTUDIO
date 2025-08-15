@@ -112,6 +112,8 @@ func newListenerNode(listener listeners.Listener) *fyne.Container {
 	)
 }
 
+var c2NodeLabel = widget.NewLabel("")
+
 func Agents() fyne.CanvasObject {
 	displayedAgentIDs := []string{}
 	listenerNodes := map[string]*dia.DiagramNode{}
@@ -145,12 +147,13 @@ func Agents() fyne.CanvasObject {
 
 	// C2 Node.
 	c2NodeID := "C2: " + httpc.BaseURL
+	c2NodeLabel.SetText(c2NodeID)
 	c2Node := dia.NewDiagramNode(
 		diagramWidget,
 		container.NewVBox(
 			c2Sprite,
 			container.NewHBox(
-				widget.NewLabel(c2NodeID),
+				c2NodeLabel,
 
 				widget.NewButtonWithIcon("", theme.MoreVerticalIcon(), func() {
 					views.C2Window()
