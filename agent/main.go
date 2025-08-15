@@ -1,11 +1,12 @@
 package main
 
 import (
-	"common/profiles"
 	"common/utils"
 	"fmt"
 	"os"
 	"time"
+
+	profiles "github.com/zarkones/ControlPROFILE"
 )
 
 func main() {

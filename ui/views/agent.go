@@ -1,26 +1,24 @@
 package views
 
 import (
-	"bytes"
 	"c2/models"
 	"common/httpc"
 	"fmt"
-	"image/png"
+	"sync"
 	"time"
 	"ui/core"
-	"ui/static"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 const AGENT_WINDOW_WIDTH = 960
 const AGENT_WINDOW_HEIGHT = 640
-const FILES_DIR = "xenalang-scripts"
+
+var (
+	agentWindows = sync.Map{}
+)
 
 type ModifiedRichText struct {
 	fyne.Container
@@ -43,11 +41,20 @@ func (mv *ModifiedRichText) Tapped(e *fyne.PointEvent) {
 }
 
 func AgentWindow(agent models.Agent) {
-	w := core.App.NewWindow("XENA: " + agent.Hostname)
+	if _, ok := agentWindows.Load(agent.ID); ok {
+		return
+	}
+	agentWindows.Store(agent.ID, true)
+
+	w := core.App.NewWindow("Agent: " + agent.ID)
 	w.Resize(fyne.NewSize(AGENT_WINDOW_WIDTH, AGENT_WINDOW_HEIGHT))
 	w.CenterOnScreen()
 
 	w.SetContent(AgentDisplay(agent, &w))
+
+	w.SetOnClosed(func() {
+		agentWindows.Delete(agent.ID)
+	})
 
 	w.Show()
 }
@@ -189,7 +196,24 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 		}
 	}
 
-	sendBtn := widget.NewButtonWithIcon("SEND", theme.MailSendIcon(), func() {
+	breakApiFetchLoop := false
+	(*w).SetOnClosed(func() {
+		breakApiFetchLoop = true
+	})
+
+	go func() {
+		updateMsg()
+		// time.Sleep(time.Second)
+		fyne.DoAndWait(messagesTxtScroll.ScrollToBottom)
+		for range time.Tick(time.Second * 4) {
+			if breakApiFetchLoop {
+				return
+			}
+			updateMsg()
+		}
+	}()
+
+	cmdInput.OnSubmitted = func(s string) {
 		go func() {
 			if cmdInput.Text == "" {
 				return
@@ -212,39 +236,11 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 				cmdInput.SetText("")
 			}
 		}()
-	})
-
-	breakApiFetchLoop := false
-	(*w).SetOnClosed(func() {
-		breakApiFetchLoop = true
-	})
-
-	go func() {
-		updateMsg()
-		// time.Sleep(time.Second)
-		fyne.DoAndWait(messagesTxtScroll.ScrollToBottom)
-		for range time.Tick(time.Second * 4) {
-			if breakApiFetchLoop {
-				return
-			}
-			updateMsg()
-		}
-	}()
-
-	img, _ := png.Decode(bytes.NewReader(static.XenaAvatar))
-	avatar := canvas.NewImageFromImage(img)
-	avatar.FillMode = canvas.ImageFillOriginal
+	}
 
 	return container.NewBorder(
 		// Top.
-		container.NewStack(
-			container.NewHBox(
-				avatar,
-				// widget.NewLabel("Hostname: "+agent.Hostname),
-				// widget.NewLabel("OS: "+agent.OS+" "+agent.Arch),
-				widget.NewLabel("IP: "+agent.IP),
-			),
-		),
+		nil,
 
 		// Bottom.
 		nil,
@@ -267,7 +263,7 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 			nil,
 
 			// Right.
-			container.NewVBox(layout.NewSpacer(), sendBtn),
+			nil,
 
 			// Primary.
 			messagesTxtScroll,

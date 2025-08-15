@@ -77,8 +77,10 @@ github.com/twpayne/go-kml v1.0.0/go.mod h1:LlvLIQSfMqYk2O7Nx8vYAbSLv4K9rjMvLlEdU
 github.com/twpayne/go-polyline v1.0.0/go.mod h1:ICh24bcLYBX8CknfvNPKqoTbe+eg+MX1NPyJmSBo7pU=
 github.com/yuin/goldmark v1.7.8 h1:iERMLn0/QJeHFhxSt3p6PeN9mGnvIKSpG9YYorDMnic=
 github.com/yuin/goldmark v1.7.8/go.mod h1:uzxRWxtg69N339t3louHJ7+O03ezfj6PlliRlaOzY1E=
-golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa h1:FRnLl4eNAQl8hwxVVC17teOw8kdjVDVAiFMtgUdTSRQ=
-golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa/go.mod h1:zk2irFbV9DP96SEBUUAy67IdHUaZuSnrz1n472HUCLE=
+github.com/zarkones/ControlPROFILE v0.1.5 h1:u5tJmO1tud/SW7uSAQmUTY0p5r4fkpG/lwZcE6JkBUc=
+github.com/zarkones/ControlPROFILE v0.1.5/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
+github.com/zarkones/netescape v0.1.4 h1:VoZ04zDxln8AfeBvCFP8SVO+bE4esWlGgB6WSaf0MWU=
+github.com/zarkones/netescape v0.1.4/go.mod h1:VNW/d1BhbnkTddjDUdZiVldCURLiJsFmsXjW4g9qwFk=
 golang.org/x/image v0.25.0 h1:Y6uW6rH1y5y/LK1J8BPWZtr6yZ7hrsy6hFrXjgsc2fQ=
 golang.org/x/image v0.25.0/go.mod h1:tCAmOEGthTtkalusGp1g3xa2gke8J6c2N565dTyl9Rs=
 golang.org/x/net v0.38.0 h1:vRMAPTMaeGqVhG5QyLJHqNDwecKTomGeqbnfZyKlBI8=

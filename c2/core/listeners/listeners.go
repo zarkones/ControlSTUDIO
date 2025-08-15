@@ -1,13 +1,14 @@
 package listeners
 
 import (
-	"common/profiles"
 	"context"
 	"errors"
 	"log"
 	"net"
 	"net/http"
 	"sync"
+
+	profiles "github.com/zarkones/ControlPROFILE"
 )
 
 type Listener struct {

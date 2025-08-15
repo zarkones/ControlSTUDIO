@@ -1,9 +1,11 @@
 package ctrl
 
 import (
+	"c2/core/listeners"
 	"c2/models"
 	"c2/repos"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -30,6 +32,12 @@ func InsertProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	profile, err := profileWithMeta.GetProfile()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	if len(profileWithMeta.Name) == 0 {
 		http.Error(w, "invalid name", http.StatusBadRequest)
 		return
@@ -44,6 +52,29 @@ func InsertProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	go func() {
+		for _, listenerService := range profile.GetHosts() {
+			if err := listeners.Insert(
+				listeners.Listener{
+					ProfileID: profileWithMeta.ID,
+					Address:   listenerService.Address,
+					Port:      listenerService.Port,
+				},
+				&profile,
+			); err != nil {
+				fmt.Println(
+					"failed to start a listener service",
+					profileWithMeta.ID,
+					listenerService.Address,
+					listenerService.Port,
+					"error:",
+					err,
+				)
+				continue
+			}
+		}
+	}()
 
 	w.WriteHeader(http.StatusCreated)
 }

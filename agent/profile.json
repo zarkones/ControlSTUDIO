@@ -43,7 +43,7 @@
         },
         "timeout": 10000,
         "hosts": [
-            { "protocol": "http://", "address": "127.0.0.1", "port": "8080" }
+            { "protocol": "http://", "address": "127.0.0.1", "port": "8001" }
         ],
         "routes": [
             "/v1/messages",
@@ -87,7 +87,7 @@
         },
         "timeout": 10000,
         "hosts": [
-            { "protocol": "http://", "address": "127.0.0.1", "port": "8080" }
+            { "protocol": "http://", "address": "127.0.0.1", "port": "8001" }
         ],
         "routes": [
             "/v1/messages",

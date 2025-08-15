@@ -18,6 +18,6 @@ func initRouting(r *http.ServeMux) {
 	r.HandleFunc("DELETE /v1/profiles", ctrl.DeleteProfile)
 
 	r.HandleFunc("GET /v1/listeners", ctrl.GetListeners)
-	r.HandleFunc("PUT /v1/listeners", ctrl.InsertListener)
-	r.HandleFunc("DELETE /v1/listeners", ctrl.DeleteListener)
+	// r.HandleFunc("PUT /v1/listeners", ctrl.InsertListener)
+	// r.HandleFunc("DELETE /v1/listeners", ctrl.DeleteListener)
 }

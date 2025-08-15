@@ -1,9 +1,10 @@
 package models
 
 import (
-	"common/profiles"
 	"encoding/json"
 	"time"
+
+	profiles "github.com/zarkones/ControlPROFILE"
 )
 
 type MetaProfile struct {

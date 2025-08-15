@@ -17,6 +17,10 @@ github.com/mattn/go-isatty v0.0.17/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
+github.com/zarkones/ControlPROFILE v0.1.5 h1:u5tJmO1tud/SW7uSAQmUTY0p5r4fkpG/lwZcE6JkBUc=
+github.com/zarkones/ControlPROFILE v0.1.5/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
+github.com/zarkones/netescape v0.1.4 h1:VoZ04zDxln8AfeBvCFP8SVO+bE4esWlGgB6WSaf0MWU=
+github.com/zarkones/netescape v0.1.4/go.mod h1:VNW/d1BhbnkTddjDUdZiVldCURLiJsFmsXjW4g9qwFk=
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
 golang.org/x/sys v0.7.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

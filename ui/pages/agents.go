@@ -25,7 +25,7 @@ import (
 
 var diagramWidget = dia.NewDiagramWidget("ENGAGEMENT")
 
-var xenaAvatar *canvas.Image
+var listenerAvatar *canvas.Image
 var agentAvatar *canvas.Image
 var osLogoWindows *canvas.Image
 var osLogoLinux *canvas.Image
@@ -78,18 +78,6 @@ func (mv *TargetView) Tapped(e *fyne.PointEvent) {
 }
 
 func newAgentNode(agent models.Agent) *fyne.Container {
-	var osLogo *canvas.Image
-	switch agent.OS {
-	case "windows":
-		osLogo = osLogoWindows
-	case "linux":
-		osLogo = osLogoLinux
-	case "darwin":
-		osLogo = osLogoDarwin
-	default:
-		osLogo = xenaAvatar
-	}
-
 	return container.NewVBox(
 		// 	// Primary.
 		container.NewHBox(
@@ -103,7 +91,7 @@ func newAgentNode(agent models.Agent) *fyne.Container {
 
 		// BOTTOM.
 		container.NewHBox(
-			osLogo,
+			// osLogo,
 
 			widget.NewLabel(agent.IP),
 
@@ -116,43 +104,26 @@ func newAgentNode(agent models.Agent) *fyne.Container {
 
 func newListenerNode(listener listeners.Listener) *fyne.Container {
 	return container.NewVBox(
-		// 	// Primary.
-		// container.NewHBox(
-		// 	layout.NewSpacer(),
-		// 	widget.NewLabel(listener.GetHost()),
-		// 	layout.NewSpacer(),
-		// ),
-		// ),
+		listenerAvatar,
 
-		// agentAvatar,
-		// widget.NewLabel("Listener:"),
-
-		// BOTTOM.
 		container.NewHBox(
-			xenaAvatar,
-
-			widget.NewLabel(listener.GetHost()),
-			// widget.NewLabel(listener.IP),
-
-			widget.NewButtonWithIcon("", theme.MoreVerticalIcon(), func() {
-				// views.AgentWindow(listener)
-			}),
+			widget.NewLabel("Listener: "+listener.GetHost()),
 		),
 	)
 }
 
 func Agents() fyne.CanvasObject {
 	displayedAgentIDs := []string{}
-	displayedListenerIDs := []string{}
+	listenerNodes := map[string]*dia.DiagramNode{}
 
 	// C2 sprite.
 	c2Img, _ := png.Decode(bytes.NewReader(static.C2))
 	c2Sprite := canvas.NewImageFromImage(c2Img)
 	c2Sprite.FillMode = canvas.ImageFillOriginal
-	// XENA Logo on agents.
-	xenalogoImg, _ := png.Decode(bytes.NewReader(static.XenaAvatar))
-	xenaAvatar = canvas.NewImageFromImage(xenalogoImg)
-	xenaAvatar.FillMode = canvas.ImageFillOriginal
+	// Listener Logo on agents.
+	listenerAvatarImg, _ := png.Decode(bytes.NewReader(static.ListenerAvatar))
+	listenerAvatar = canvas.NewImageFromImage(listenerAvatarImg)
+	listenerAvatar.FillMode = canvas.ImageFillOriginal
 	// Agent avatar.
 	agentlogoImg, _ := png.Decode(bytes.NewReader(static.AgentAvatar))
 	agentAvatar = canvas.NewImageFromImage(agentlogoImg)
@@ -173,15 +144,22 @@ func Agents() fyne.CanvasObject {
 	scrollContainer.Offset = fyne.NewPos(500, 500)
 
 	// C2 Node.
-	c2NodeID := "Command & Control Server"
+	c2NodeID := "C2: " + httpc.BaseURL
 	c2Node := dia.NewDiagramNode(
 		diagramWidget,
 		container.NewVBox(
 			c2Sprite,
-			widget.NewLabel(c2NodeID),
+			container.NewHBox(
+				widget.NewLabel(c2NodeID),
+
+				widget.NewButtonWithIcon("", theme.MoreVerticalIcon(), func() {
+					views.C2Window()
+				}),
+			),
 		),
 		c2NodeID,
 	)
+
 	c2NodeX := float32(300)
 	c2NodeY := float32(300)
 	c2Node.Move(fyne.NewPos(c2NodeX, c2NodeY))
@@ -203,53 +181,56 @@ func Agents() fyne.CanvasObject {
 			return
 		}
 
-		listenerPoints := generatePositions(c2Node.Position(), len(state.Listeners))
+		fyne.DoAndWait(func() {
 
-		for listenerIndex, listener := range state.Listeners {
-			if slices.Contains(displayedListenerIDs, listener.GetID()) {
-				continue
-			}
-			displayedListenerIDs = append(displayedListenerIDs, listener.GetID())
+			listenerPoints := generatePositions(c2Node.Position(), len(state.Listeners))
 
-			listenerNodeID := "LISTENER:" + listener.GetID()
-			listenerNode := dia.NewDiagramNode(diagramWidget, nil, listenerNodeID)
-			listenerNode.SetProperties(dia.DiagramElementProperties{
-				StrokeWidth: 0,
-			})
-			listenerNode.Move(listenerPoints[listenerIndex])
+			for listenerIndex, listener := range state.Listeners {
+				listenerNodeID := "LISTENER:" + listener.GetID()
 
-			listenerNode.SetInnerObject(newListenerNode(listener))
+				if _, ok := listenerNodes[listenerNodeID]; !ok {
+					listenerNode := dia.NewDiagramNode(diagramWidget, nil, listenerNodeID)
+					listenerNode.SetProperties(dia.DiagramElementProperties{
+						StrokeWidth: 0,
+					})
+					listenerNode.Move(listenerPoints[listenerIndex])
 
-			listenerLinkID := "NODE_LINK_LISTENER:" + c2NodeID + "->" + listenerNodeID
-			listenerLink := dia.NewDiagramLink(diagramWidget, listenerLinkID)
-			listenerLink.SetSourcePad(c2Node.GetEdgePad())
-			listenerLink.SetTargetPad(listenerNode.GetEdgePad())
-			listenerLink.AddSourceDecoration(dia.NewArrowhead())
+					listenerNode.SetInnerObject(newListenerNode(listener))
 
-			for agentIndex, agent := range state.Agents {
-				if slices.Contains(displayedAgentIDs, agent.ID) {
-					continue
+					listenerLinkID := "NODE_LINK_LISTENER:" + c2NodeID + "->" + listenerNodeID
+					listenerLink := dia.NewDiagramLink(diagramWidget, listenerLinkID)
+					listenerLink.SetSourcePad(c2Node.GetEdgePad())
+					listenerLink.SetTargetPad(listenerNode.GetEdgePad())
+					listenerLink.AddSourceDecoration(dia.NewArrowhead())
+
+					listenerNodes[listenerNodeID] = &listenerNode
 				}
-				displayedAgentIDs = append(displayedAgentIDs, agent.ID)
 
-				agentNodeID := "AGENT:" + agent.ID
-				agentNode := dia.NewDiagramNode(diagramWidget, nil, agentNodeID)
-				agentNode.SetProperties(dia.DiagramElementProperties{
-					StrokeWidth: 0,
-				})
+				for agentIndex, agent := range state.Agents {
+					if slices.Contains(displayedAgentIDs, agent.ID) {
+						continue
+					}
+					displayedAgentIDs = append(displayedAgentIDs, agent.ID)
 
-				agentPoints := generatePositions(listenerNode.Position(), len(state.Agents))
-				agentNode.Move(agentPoints[agentIndex])
+					agentNodeID := "AGENT:" + agent.ID
+					agentNode := dia.NewDiagramNode(diagramWidget, nil, agentNodeID)
+					agentNode.SetProperties(dia.DiagramElementProperties{
+						StrokeWidth: 0,
+					})
 
-				agentNode.SetInnerObject(newAgentNode(agent))
+					agentPoints := generatePositions((*listenerNodes[listenerNodeID]).Position(), len(state.Agents))
+					agentNode.Move(agentPoints[agentIndex])
 
-				agentLinkID := "NODE_LINK_AGENT:" + c2NodeID + "->" + agentNodeID
-				agentLink := dia.NewDiagramLink(diagramWidget, agentLinkID)
-				agentLink.SetSourcePad(listenerNode.GetEdgePad())
-				agentLink.SetTargetPad(agentNode.GetEdgePad())
-				agentLink.AddSourceDecoration(dia.NewArrowhead())
+					agentNode.SetInnerObject(newAgentNode(agent))
+
+					agentLinkID := "NODE_LINK_AGENT:" + c2NodeID + "->" + agentNodeID
+					agentLink := dia.NewDiagramLink(diagramWidget, agentLinkID)
+					agentLink.SetSourcePad((*listenerNodes[listenerNodeID]).GetEdgePad())
+					agentLink.SetTargetPad(agentNode.GetEdgePad())
+					agentLink.AddSourceDecoration(dia.NewArrowhead())
+				}
 			}
-		}
+		})
 
 	}
 

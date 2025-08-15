@@ -10,10 +10,10 @@ var C2 []byte
 //go:embed pentagon.png
 var Pentagon []byte
 
-//go:embed xena-vatar-xs.png
-var XenaAvatar []byte
+//go:embed pentagon.png
+var ListenerAvatar []byte
 
-//go:embed agent-avatar.png
+//go:embed pc.png
 var AgentAvatar []byte
 
 //go:embed os-windows.png

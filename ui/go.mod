@@ -2,6 +2,8 @@ module ui
 
 go 1.24.5
 
+require github.com/zarkones/ControlPROFILE v0.1.5
+
 require (
 	fyne.io/systray v1.11.0 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
@@ -26,6 +28,7 @@ require (
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/twpayne/go-geom v1.0.0 // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
+	github.com/zarkones/netescape v0.1.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -38,7 +41,6 @@ require (
 	github.com/go-text/typesetting v0.3.1-0.20250402122313-7a0f05577ff5 // indirect
 	github.com/hack-pad/go-indexeddb v0.3.2 // indirect
 	github.com/hack-pad/safejs v0.1.1 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	golang.org/x/image v0.25.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect

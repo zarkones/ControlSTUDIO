@@ -1,8 +1,9 @@
 package main
 
 import (
-	"common/profiles"
 	"io"
+
+	profiles "github.com/zarkones/ControlPROFILE"
 )
 
 func send(agentId *string, profile *profiles.Profile, data *string) (err error) {

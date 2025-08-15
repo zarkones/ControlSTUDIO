@@ -57,6 +57,13 @@ github.com/stretchr/objx v0.5.2/go.mod h1:FRsXN1f5AsAjCGJKqEizvkpNtU+EGNCLh3NxZ/
 github.com/urfave/cli/v2 v2.4.0/go.mod h1:NX9W0zmTvedE5oDoOMs2RTC8RvdK98NTYZE5LbaEYPg=
 github.com/wagslane/go-password-validator v0.3.0/go.mod h1:TI1XJ6T5fRdRnHqHt14pvy1tNVnrwe7m3/f1f2fDphQ=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
+github.com/zarkones/ControlPROFILE v0.1.1/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
+github.com/zarkones/ControlPROFILE v0.1.3 h1:Ux9s8G3GDxlfeTSi9qAwO+UMqtjmphpRDxm9Hdyinc0=
+github.com/zarkones/ControlPROFILE v0.1.3/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
+github.com/zarkones/ControlPROFILE v0.1.4 h1:p2fV53Q2Y+UTSxXo5nVI39EF889RKrd+x9zK1A94gyo=
+github.com/zarkones/ControlPROFILE v0.1.4/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
+github.com/zarkones/ControlPROFILE v0.1.5 h1:u5tJmO1tud/SW7uSAQmUTY0p5r4fkpG/lwZcE6JkBUc=
+github.com/zarkones/ControlPROFILE v0.1.5/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
 golang.org/x/crypto v0.36.0/go.mod h1:Y4J0ReaxCR1IMaabaSMugxJES1EpwhBHhv2bDHklZvc=
 golang.org/x/exp/shiny v0.0.0-20240416160154-fe59bbe5cc7f/go.mod h1:3F+MieQB7dRYLTmnncoFbb1crS5lfQoTfDgQy6K4N0o=
 golang.org/x/mobile v0.0.0-20231127183840-76ac6878050a/go.mod h1:Ede7gF0KGoHlj822RtphAHK1jLdrcuRBZg0sF1Q+SPc=
