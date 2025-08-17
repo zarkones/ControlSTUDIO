@@ -3,7 +3,12 @@
 # INTRODUCTION
 ControlSTUDIO is an adversary simulation framework made fully in Go, with support for malleable command and control (C2) profiles.
 
-It uses malleable C2 profiles library: https://github.com/zarkones/ControlPROFILE
+This project's goal is to aid in creation of adversary simulation and command & control frameworks. As the project matures, it would receive more, more software components which you can use in your tools.
+
+Here are some of the software components available right now:
+
+https://github.com/zarkones/ControlPROFILE - Library for creating & parsing malleable C2 profiles.
+https://github.com/zarkones/ControlACCESS  - Authentication and authorization library.
 
 # SETUP
 If you wish you can modify the default C2 profile located at "agent/profile.json".
@@ -16,4 +21,4 @@ To run the UI double-click on "export/ControlSTUDIO", then go to settings and en
 
 IMPORTANT!
 
-The current C2 doesn't have authentication itself. Either connect to it locally or via VPN. However, the listener services (not the same as C2 API for management) would run on different interface and port depending on your C2 profile.
+The current C2 doesn't have authentication itself (literally I am working on it right now via https://github.com/zarkones/ControlACCESS). Either connect to it locally or via VPN. However, the listener services (not the same as C2 API for management) would run on different interface and port depending on your C2 profile.
