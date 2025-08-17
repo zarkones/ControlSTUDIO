@@ -12,7 +12,7 @@ import (
 
 type ExtendedPermission struct {
 	access.Permission
-	Acquired bool `json:"acquired"`
+	Acquired bool
 }
 
 type GetPermissionsRespCtx map[access.PermissionKey]ExtendedPermission

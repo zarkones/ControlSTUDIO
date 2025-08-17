@@ -74,6 +74,6 @@ func UpdateOldestMessageResponse(agentID, response string) (err error) {
 		return ErrMsgRespPopulated
 	}
 	message.Response = response
-	message.UpdatedAt = time.Now().UnixNano()
+	message.UpdatedAt = time.Now()
 	return db.ORM.Save(message).Error
 }

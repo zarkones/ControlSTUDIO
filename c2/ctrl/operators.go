@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
 type SerializedOperator struct {
-	Username     string `json:"username" gorm:"primaryKey"`
-	PublicKeyHex string `json:"publicKeyHex"`
-	CreatedAt    int64  `json:"createdAt"`
+	Username     string
+	PublicKeyHex string
+	CreatedAt    time.Time
 }
 
 func GetOperators(w http.ResponseWriter, r *http.Request) {
