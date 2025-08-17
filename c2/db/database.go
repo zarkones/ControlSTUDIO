@@ -4,6 +4,7 @@ import (
 	"c2/models"
 
 	"github.com/glebarez/sqlite"
+	access "github.com/zarkones/ControlACCESS"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,8 @@ func Init(dbName string) error {
 		&models.Agent{},
 		&models.MetaProfile{},
 		&models.Message{},
+		&models.Operator{},
+		&access.Permission{},
 	); err != nil {
 		return err
 	}
