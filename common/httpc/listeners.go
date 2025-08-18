@@ -10,7 +10,12 @@ func GetListeners() (ls []listeners.Listener, err error) {
 	if len(BaseURL) == 0 {
 		return nil, ErrInvalidBaseURL
 	}
-	resp, err := client.Get(BaseURL + "/v1/listeners")
+	req, err := http.NewRequest(http.MethodGet, BaseURL+"/v1/listeners", nil)
+	if err != nil {
+		return nil, err
+	}
+	setAuthHeader(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

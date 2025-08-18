@@ -92,8 +92,8 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 		}
 	}
 
-	after := ""
-	before := ""
+	var after *time.Time = nil
+	var before *time.Time = nil
 	page := 0
 
 	updateMsg := func() {
@@ -132,7 +132,7 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 			})
 		}()
 
-		newMessagesCtx, err := httpc.GetMessages(agent.ID, &before, &after, &page)
+		newMessagesCtx, err := httpc.GetMessages(agent.ID, before, after, &page)
 		if err != nil {
 			fmt.Println("error httpc.GetMessages:", err)
 			return
@@ -140,7 +140,7 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 
 		fyne.DoAndWait(func() {
 			if len(newMessagesCtx.Messages) != 0 {
-				after = newMessagesCtx.After
+				after = &newMessagesCtx.After
 				for i := len(newMessagesCtx.Messages) - 1; i >= 0; i-- {
 					msg := newMessagesCtx.Messages[i]
 					// Check if message already exists

@@ -29,6 +29,9 @@ func InsertProfile(name, description string, profile profiles.Profile) (err erro
 	if err != nil {
 		return err
 	}
+
+	setAuthHeader(req)
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

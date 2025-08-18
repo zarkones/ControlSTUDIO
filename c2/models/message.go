@@ -8,18 +8,18 @@ import (
 )
 
 type Message struct {
-	ID        string `json:"id" gorm:"primaryKey"`
-	AgentID   string `json:"agentId"`
-	Request   string `json:"request"`
-	Response  string `json:"response"`
-	CreatedAt int64  `json:"createdAt"`
-	UpdatedAt int64  `json:"updatedAt"`
+	ID        string `gorm:"primaryKey"`
+	AgentID   string
+	Request   string
+	Response  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (m *Message) BeforeCreate(tx *gorm.DB) (err error) {
 	if m.ID == "" {
 		m.ID = uuid.New().String()
 	}
-	m.CreatedAt = time.Now().UnixNano()
+	m.CreatedAt = time.Now()
 	return nil
 }

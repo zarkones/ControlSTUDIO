@@ -18,7 +18,7 @@ func GetMessages(agentID string, offset, limit int) (messages []models.Message, 
 		Find(&messages).Error
 }
 
-func GetMessagesBefore(agentID string, before int64, limit int) (messages []models.Message, err error) {
+func GetMessagesBefore(agentID string, before time.Time, limit int) (messages []models.Message, err error) {
 	return messages, db.ORM.
 		Where("agent_id = ?", agentID).
 		Where("created_at < ?", before).
@@ -27,7 +27,7 @@ func GetMessagesBefore(agentID string, before int64, limit int) (messages []mode
 		Find(&messages).Error
 }
 
-func GetMessagesAfter(agentID string, after int64, limit int) (messages []models.Message, err error) {
+func GetMessagesAfter(agentID string, after time.Time, limit int) (messages []models.Message, err error) {
 	return messages, db.ORM.
 		Where("agent_id = ?", agentID).
 		Where("created_at > ?", after).
@@ -74,6 +74,6 @@ func UpdateOldestMessageResponse(agentID, response string) (err error) {
 		return ErrMsgRespPopulated
 	}
 	message.Response = response
-	message.UpdatedAt = time.Now().UnixNano()
+	message.UpdatedAt = time.Now()
 	return db.ORM.Save(message).Error
 }

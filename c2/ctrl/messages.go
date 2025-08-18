@@ -4,25 +4,25 @@ import (
 	"c2/models"
 	"c2/repos"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type GetMessagesRespCtx struct {
 	Messages []models.Message
-	Before   string
-	After    string
+	Before   time.Time
+	After    time.Time
 }
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	agentID := r.PathValue("agentID")
 
 	q := r.URL.Query()
-	before, errBefore := strconv.ParseInt(q.Get("before"), 10, 64)
-	after, errAfter := strconv.ParseInt(q.Get("after"), 10, 64)
+	beforeUnix, errBefore := strconv.ParseInt(q.Get("before"), 10, 64)
+	afterUnix, errAfter := strconv.ParseInt(q.Get("after"), 10, 64)
 	page, _ := strconv.Atoi(q.Get("page"))
 	limit, err := strconv.Atoi(q.Get("limit"))
 	if err != nil {
@@ -32,10 +32,12 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	var messages []models.Message
 
-	if errAfter == nil {
+	if errAfter == nil && afterUnix != 0 {
+		after := time.Unix(afterUnix, 0)
 		messages, err = repos.GetMessagesAfter(agentID, after, limit)
 	} else {
-		if errBefore == nil {
+		if errBefore == nil && beforeUnix != 0 {
+			before := time.Unix(afterUnix, 0)
 			messages, err = repos.GetMessagesBefore(agentID, before, limit)
 		} else {
 			messages, err = repos.GetMessages(agentID, offset, limit)
@@ -55,8 +57,8 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	resp := GetMessagesRespCtx{
 		Messages: messages,
-		Before:   fmt.Sprint(messages[len(messages)-1].CreatedAt),
-		After:    fmt.Sprint(messages[0].CreatedAt),
+		Before:   messages[len(messages)-1].CreatedAt,
+		After:    messages[0].CreatedAt,
 	}
 
 	jj(w, &resp)
