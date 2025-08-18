@@ -20,6 +20,14 @@ All files would be located in the "export" directory. To start the C2 server jus
 
 To run the UI double-click on "export/ControlSTUDIO", then go to settings and enter the address of the C2 server. Then go back and click on the menu button of the C2 node in the diagram, there you'd be able to import a C2 profile. Default C2 profile is located at "agent/profile.json".
 
-IMPORTANT!
+To create a new C2 operator account run the C2 binary with like the following example: ./linux_amd64 --create-admin --username <YOUR_USERNAME>
 
-The current C2 doesn't have authentication itself (literally I am working on it right now via https://github.com/zarkones/ControlACCESS). Either connect to it locally or via VPN. However, the listener services (not the same as C2 API for management) would run on different interface and port depending on your C2 profile.
+Then enter your username and private key in the Settings tab of the user interface.
+
+# SOCIAL
+[Discord](https://discord.gg/qjJwSh2TF9) |
+[X.com](https://x.com/zarkones) |
+[YouTube](https://www.youtube.com/channel/UCn-7I-L-ZpiELb8-6z7z_Ug) |
+[Patreon](https://www.patreon.com/zarkones) |
+[Itch.io](https://zarkones.itch.io) |
+[GitHub](https://github.com/zarkones)

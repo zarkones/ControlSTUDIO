@@ -7,7 +7,7 @@ import (
 )
 
 type Operator struct {
-	Username     string `gorm:"primaryKey"`
+	UserID       string `gorm:"primaryKey"`
 	PublicKeyHex string
 	CreatedAt    time.Time
 }

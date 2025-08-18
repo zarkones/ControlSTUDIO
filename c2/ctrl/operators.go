@@ -30,7 +30,7 @@ func GetOperators(w http.ResponseWriter, r *http.Request) {
 	serializableOperators := make([]SerializedOperator, len(operators))
 	for i, operator := range operators {
 		serializableOperators[i] = SerializedOperator{
-			Username:     operator.Username,
+			Username:     operator.UserID,
 			PublicKeyHex: operator.PublicKeyHex,
 			CreatedAt:    operator.CreatedAt,
 		}

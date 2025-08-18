@@ -48,7 +48,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		log.Println("Username:", operator.Username)
+		log.Println("Username:", operator.UserID)
 		log.Println("Private Key:", hexEncodedPrivateKey)
 
 		os.Exit(0)
@@ -93,16 +93,16 @@ func main() {
 		if err != nil {
 			return nil, err
 		}
-		permissions := make([]access.Permission, len(dbPermissions))
-		for i, p := range dbPermissions {
-			permissions[i] = access.Permission{
-				Key:       p.Key,
-				UserID:    p.UserID,
-				Metadata:  p.Metadata,
-				CreatedAt: p.CreatedAt,
-			}
-		}
-		return permissions, nil
+		// permissions := make([]access.Permission, len(dbPermissions))
+		// for i, p := range dbPermissions {
+		// 	permissions[i] = access.Permission{
+		// 		Key:       p.Key,
+		// 		UserID:    p.UserID,
+		// 		Metadata:  p.Metadata,
+		// 		CreatedAt: p.CreatedAt,
+		// 	}
+		// }
+		return dbPermissions, nil
 	}
 
 	access.HandlerGetUserPublicKey = func(userID string) (*rsa.PublicKey, error) {

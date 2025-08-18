@@ -10,7 +10,12 @@ func GetAgents() (agents []models.Agent, err error) {
 	if len(BaseURL) == 0 {
 		return nil, ErrInvalidBaseURL
 	}
-	resp, err := client.Get(BaseURL + "/v1/agents")
+	req, err := http.NewRequest(http.MethodGet, BaseURL+"/v1/agents", nil)
+	if err != nil {
+		return nil, err
+	}
+	setAuthHeader(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

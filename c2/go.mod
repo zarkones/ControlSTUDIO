@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
-	github.com/zarkones/ControlACCESS v0.1.5
+	github.com/zarkones/ControlACCESS v0.1.7
 	github.com/zarkones/ControlPROFILE v0.1.5
 	github.com/zarkones/xena-crypto v0.0.3
 	gorm.io/gorm v1.30.1

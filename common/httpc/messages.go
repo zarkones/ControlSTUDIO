@@ -5,9 +5,11 @@ import (
 	"c2/ctrl"
 	"c2/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func GetMessagesByIDs(messageIDs *[]string) (msgMap map[string]models.Message, err error) {
@@ -24,6 +26,8 @@ func GetMessagesByIDs(messageIDs *[]string) (msgMap map[string]models.Message, e
 	if err != nil {
 		return nil, err
 	}
+
+	setAuthHeader(req)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -45,18 +49,18 @@ func GetMessagesByIDs(messageIDs *[]string) (msgMap map[string]models.Message, e
 	}
 }
 
-func GetMessages(agentID string, before, after *string, page *int) (messages ctrl.GetMessagesRespCtx, err error) {
+func GetMessages(agentID string, before, after *time.Time, page *int) (messages ctrl.GetMessagesRespCtx, err error) {
 	if len(BaseURL) == 0 {
 		return ctrl.GetMessagesRespCtx{}, ErrInvalidBaseURL
 	}
 
 	path := "/v1/messages/" + agentID
 	args := []string{}
-	if len(*after) != 0 {
-		args = append(args, "after="+*after)
+	if after != nil {
+		args = append(args, "after="+fmt.Sprint(after.Unix()))
 	}
-	if len(*before) != 0 {
-		args = append(args, "before="+*before)
+	if before != nil {
+		args = append(args, "before="+fmt.Sprint(before.Unix()))
 	}
 	if page != nil {
 		args = append(args, "page="+strconv.Itoa(*page))
@@ -65,7 +69,14 @@ func GetMessages(agentID string, before, after *string, page *int) (messages ctr
 		path += "?" + strings.Join(args, "&")
 	}
 
-	resp, err := client.Get(BaseURL + path)
+	req, err := http.NewRequest(http.MethodGet, BaseURL+path, nil)
+	if err != nil {
+		return ctrl.GetMessagesRespCtx{}, err
+	}
+
+	setAuthHeader(req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return ctrl.GetMessagesRespCtx{}, err
 	}
@@ -89,6 +100,7 @@ func InsertMessage(agentID, request string) (err error) {
 	if err != nil {
 		return err
 	}
+	setAuthHeader(req)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

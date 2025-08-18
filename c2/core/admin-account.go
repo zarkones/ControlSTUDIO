@@ -50,7 +50,7 @@ func CreateAdminOperator(username string) (operator models.Operator, hexEncodedP
 	}
 
 	return models.Operator{
-			Username:     username,
+			UserID:       username,
 			PublicKeyHex: hex.EncodeToString([]byte(serializedPublicKey)),
 		},
 		hex.EncodeToString([]byte(serializedPrivateKey)),
