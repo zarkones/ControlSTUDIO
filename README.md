@@ -11,6 +11,8 @@ https://github.com/zarkones/ControlPROFILE - Library for creating & parsing mall
 
 https://github.com/zarkones/ControlACCESS  - Authentication and authorization library.
 
+https://github.com/zarkones/netescape -  Malware traffic & files obfuscation library.
+
 # SETUP
 If you wish you can modify the default C2 profile located at "agent/profile.json".
 
