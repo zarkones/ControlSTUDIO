@@ -2,7 +2,11 @@ module ui
 
 go 1.24.5
 
-require github.com/zarkones/ControlPROFILE v0.1.5
+require (
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/zarkones/ControlPROFILE v0.1.5
+	github.com/zarkones/xena-crypto v0.0.3
+)
 
 require (
 	fyne.io/systray v1.11.0 // indirect

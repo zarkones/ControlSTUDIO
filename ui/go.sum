@@ -35,6 +35,8 @@ github.com/go-text/typesetting-utils v0.0.0-20241103174707-87a29e9e6066 h1:qCuYC
 github.com/go-text/typesetting-utils v0.0.0-20241103174707-87a29e9e6066/go.mod h1:DDxDdQEnB70R8owOx3LVpEFvpMK9eeH1o2r0yZhFI9o=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
 github.com/godbus/dbus/v5 v5.1.0/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
+github.com/golang-jwt/jwt/v5 v5.3.0 h1:pv4AsKCKKZuqlgs5sUmn4x8UlGa0kEVt/puTpKx9vvo=
+github.com/golang-jwt/jwt/v5 v5.3.0/go.mod h1:fxCRLWMO43lRc8nhHWY6LGqRcf+1gQWArsqaEUEa5bE=
 github.com/google/pprof v0.0.0-20211214055906-6f57359322fd h1:1FjCyPC+syAzJ5/2S8fqdZK1R22vvA0J7JZKcuOIQ7Y=
 github.com/google/pprof v0.0.0-20211214055906-6f57359322fd/go.mod h1:KgnwoLYCZ8IQu3XUZ8Nc/bM9CCZFOyjUNOSygVozoDg=
 github.com/hack-pad/go-indexeddb v0.3.2 h1:DTqeJJYc1usa45Q5r52t01KhvlSN02+Oq+tQbSBI91A=
@@ -81,6 +83,8 @@ github.com/zarkones/ControlPROFILE v0.1.5 h1:u5tJmO1tud/SW7uSAQmUTY0p5r4fkpG/lwZ
 github.com/zarkones/ControlPROFILE v0.1.5/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
 github.com/zarkones/netescape v0.1.4 h1:VoZ04zDxln8AfeBvCFP8SVO+bE4esWlGgB6WSaf0MWU=
 github.com/zarkones/netescape v0.1.4/go.mod h1:VNW/d1BhbnkTddjDUdZiVldCURLiJsFmsXjW4g9qwFk=
+github.com/zarkones/xena-crypto v0.0.3 h1:XmjdxpiT555RaH+m1OU9CNK3ZPuDgI0Xttfp2GHLwFE=
+github.com/zarkones/xena-crypto v0.0.3/go.mod h1:qVvUrKrnsHw9IpQ65K1EzCgOuGGP0xzT2V+WoQIErcw=
 golang.org/x/image v0.25.0 h1:Y6uW6rH1y5y/LK1J8BPWZtr6yZ7hrsy6hFrXjgsc2fQ=
 golang.org/x/image v0.25.0/go.mod h1:tCAmOEGthTtkalusGp1g3xa2gke8J6c2N565dTyl9Rs=
 golang.org/x/net v0.38.0 h1:vRMAPTMaeGqVhG5QyLJHqNDwecKTomGeqbnfZyKlBI8=
