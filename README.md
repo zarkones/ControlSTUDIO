@@ -9,6 +9,8 @@ Here are some of the software components available right now:
 
 https://github.com/zarkones/ControlPROFILE - Library for creating & parsing malleable C2 profiles.
 
+https://github.com/zarkones/ControlABILITY - Library for developing malware's operational capabilities.
+
 https://github.com/zarkones/ControlACCESS  - Authentication and authorization library.
 
 https://github.com/zarkones/netescape -  Malware traffic & files obfuscation library.
