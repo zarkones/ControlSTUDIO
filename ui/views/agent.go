@@ -3,13 +3,17 @@ package views
 import (
 	"c2/models"
 	"common/httpc"
+	"encoding/hex"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 	"ui/core"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -111,11 +115,43 @@ func AgentDisplay(agent models.Agent, w *fyne.Window) fyne.CanvasObject {
 				}
 				i++
 
-				messagesTxt.Segments[i] = &widget.TextSegment{
-					Style: widget.RichTextStyleCodeInline,
-					Text:  msg.Response + "\n",
+				if msg.Request == "/screenshot" {
+					screenshotsDir := "./screenshots"
+					screenshotPath := filepath.Join(screenshotsDir, msg.ID)
+					os.Mkdir(screenshotsDir, 0777)
+
+					f, err := os.Create(screenshotPath)
+					if err != nil {
+						messagesTxt.Segments[i] = &widget.TextSegment{
+							Style: widget.RichTextStyleSubHeading,
+							Text:  "local error: " + err.Error(),
+						}
+						i++
+					}
+					hexDecoded, err := hex.DecodeString(msg.Response)
+					if err != nil {
+						messagesTxt.Segments[i] = &widget.TextSegment{
+							Style: widget.RichTextStyleSubHeading,
+							Text:  "local error: " + err.Error(),
+						}
+						i++
+					}
+					f.Write([]byte(hexDecoded))
+					f.Close()
+					// defer os.Remove(screenshotPath)
+					uri := storage.NewFileURI(screenshotPath)
+
+					messagesTxt.Segments[i] = &widget.ImageSegment{
+						Source: uri,
+					}
+					i++
+				} else {
+					messagesTxt.Segments[i] = &widget.TextSegment{
+						Style: widget.RichTextStyleCodeInline,
+						Text:  msg.Response + "\n",
+					}
+					i++
 				}
-				i++
 			}
 
 			if oldMsgLen != len(messages) {

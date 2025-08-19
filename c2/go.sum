@@ -20,8 +20,8 @@ github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdh
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
-github.com/zarkones/ControlACCESS v0.1.5 h1:BOvdVWhIQe/PWMPHppOrHqG8BxKs+92LbCL/fEwUtWE=
-github.com/zarkones/ControlACCESS v0.1.5/go.mod h1:ZO4PLrEqdC9K7zE9UkP5IdrdvCBaCrEm3Q02Qzbi5pc=
+github.com/zarkones/ControlACCESS v0.1.7 h1:QTHD041Po6WRjWYao2HCV+zz8pKzF2DGus3Dloxj5lg=
+github.com/zarkones/ControlACCESS v0.1.7/go.mod h1:ZO4PLrEqdC9K7zE9UkP5IdrdvCBaCrEm3Q02Qzbi5pc=
 github.com/zarkones/ControlPROFILE v0.1.5 h1:u5tJmO1tud/SW7uSAQmUTY0p5r4fkpG/lwZcE6JkBUc=
 github.com/zarkones/ControlPROFILE v0.1.5/go.mod h1:3PLBM3lEGNMEOW/iIRfeVFtig769NZKRum9f//F9FCo=
 github.com/zarkones/netescape v0.1.4 h1:VoZ04zDxln8AfeBvCFP8SVO+bE4esWlGgB6WSaf0MWU=
